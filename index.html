@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Lab Inventory Management System – manage laboratory equipment, chemicals, and materials efficiently." />
+  <title>Lab Inventory Management System</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── Mobile Overlay (closes sidebar) ───────────────────────────── -->
+<div class="overlay" id="mobileOverlay"></div>
+
+<!-- ── App Layout ─────────────────────────────────────────────────── -->
+<div class="layout">
+
+  <!-- ════════════ SIDEBAR ════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <!-- Flask Icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" style="color:#1a3a10">
+          <path d="M9 3h6l1 8H8L9 3z"/>
+          <path d="M8 11l-3 7a1 1 0 0 0 .92 1.4h12.16a1 1 0 0 0 .92-1.4L16 11"/>
+          <line x1="6" y1="7" x2="18" y2="7"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h2>Lab Inventory</h2>
+        <span>Management System</span>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      <p class="nav-label">Main Menu</p>
+
+      <li class="nav-item active" data-section="dashboard" onclick="navigate('dashboard', this)">
+        <!-- Dashboard icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span class="nav-item-text">Dashboard</span>
+      </li>
+
+      <li class="nav-item" data-section="inventory" onclick="navigate('inventory', this)">
+        <!-- Package icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10V6a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 6v4"/>
+          <path d="M12 22V12m9-2v8a2 2 0 0 1-1 1.73l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 18v-8"/>
+          <path d="m3.3 7 8.7 5 8.7-5"/>
+        </svg>
+        <span class="nav-item-text">Inventory</span>
+        <span class="nav-badge" id="sidebarItemCount">–</span>
+      </li>
+
+      <li class="nav-item" data-section="categories" onclick="navigate('categories', this)">
+        <!-- Tag icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        <span class="nav-item-text">Categories</span>
+      </li>
+
+      <p class="nav-label" style="margin-top:10px;">Management</p>
+
+      <li class="nav-item" data-section="issue" onclick="navigate('issue', this)">
+        <!-- ArrowRight icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+        <span class="nav-item-text">Issue &amp; Return</span>
+      </li>
+
+      <li class="nav-item" data-section="reports" onclick="navigate('reports', this)">
+        <!-- BarChart icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        <span class="nav-item-text">Reports</span>
+      </li>
+
+      <li class="nav-item" data-section="settings" onclick="navigate('settings', this)">
+        <!-- Settings icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span class="nav-item-text">Settings</span>
+      </li>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <p>Lab Inventory v1.0<br>Phase 1 &mdash; 30% Complete</p>
+    </div>
+
+  </aside><!-- /.sidebar -->
+
+  <!-- ════════════ MAIN CONTENT ════════════ -->
+  <div class="main-content" id="mainContent">
+
+    <!-- ── Top Bar ──────────────────────────────────────────────── -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-title">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p>Welcome to Lab Inventory Management</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="notif-btn" title="Notifications" onclick="showNotifications()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="user-chip">
+          <div class="user-avatar">AD</div>
+          <span class="user-name">Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Page Content ──────────────────────────────────────────── -->
+    <main class="page-content">
+
+      <!-- ════════ DASHBOARD SECTION ════════ -->
+      <section id="section-dashboard" class="section active">
+
+        <!-- Alert strip for low stock -->
+        <div class="alert-strip hidden" id="lowStockAlert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span><strong id="lowStockMsg">2 items</strong> are running low on stock. Please restock soon.</span>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+
+          <div class="stat-card green">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10V6a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 6v4"/>
+                <path d="M12 22V12m9-2v8a2 2 0 0 1-1 1.73l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 18v-8"/>
+                <path d="m3.3 7 8.7 5 8.7-5"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="statTotal">–</div>
+              <div class="stat-label">Total Items</div>
+              <div class="stat-delta">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px">
+                  <polyline points="18 15 12 9 6 15"/>
+                </svg>
+                All types
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card gold">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="statAvailable">–</div>
+              <div class="stat-label">Available Items</div>
+              <div class="stat-delta">Ready for use</div>
+            </div>
+          </div>
+
+          <div class="stat-card blue">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="statIssued">–</div>
+              <div class="stat-label">Issued Items</div>
+              <div class="stat-delta" style="color:#0284c7">Currently out</div>
+            </div>
+          </div>
+
+          <div class="stat-card orange">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="statLowStock">–</div>
+              <div class="stat-label">Low Stock Items</div>
+              <div class="stat-delta" style="color:#ea580c">Needs restocking</div>
+            </div>
+          </div>
+
+        </div><!-- /.stats-grid -->
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <button class="btn btn-primary" onclick="navigate('inventory', document.querySelector('[data-section=inventory]'))">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            View Inventory
+          </button>
+          <button class="btn btn-gold" onclick="openAddModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add New Item
+          </button>
+          <button class="btn btn-outline" onclick="navigate('categories', document.querySelector('[data-section=categories]'))">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+              <line x1="7" y1="7" x2="7.01" y2="7"/>
+            </svg>
+            Browse Categories
+          </button>
+        </div>
+
+        <!-- Charts + Table Grid -->
+        <div class="dashboard-grid">
+
+          <!-- Inventory by Category Chart -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                Inventory by Category
+              </div>
+            </div>
+            <div class="chart-container">
+              <div class="chart-wrap">
+                <canvas id="categoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Available vs Issued Doughnut -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Stock Overview
+              </div>
+            </div>
+            <div class="chart-container">
+              <div class="chart-wrap">
+                <canvas id="stockChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.dashboard-grid -->
+
+        <!-- Recent Inventory Table -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+              Recent Inventory
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="navigate('inventory', document.querySelector('[data-section=inventory]'))">
+              View All
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table id="dashboardTable">
+              <thead>
+                <tr>
+                  <th>#ID</th>
+                  <th>Item Name</th>
+                  <th>Category</th>
+                  <th>Total</th>
+                  <th>Issued</th>
+                  <th>Available</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardTableBody">
+                <tr class="loading-row"><td colspan="8">Loading inventory data…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section><!-- /#section-dashboard -->
+
+
+      <!-- ════════ INVENTORY SECTION ════════ -->
+      <section id="section-inventory" class="section">
+        <div class="section-header">
+          <div>
+            <h2>Inventory Management</h2>
+            <p>Manage all laboratory equipment, chemicals, and materials</p>
+          </div>
+          <button class="btn btn-primary" onclick="openAddModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add New Item
+          </button>
+        </div>
+
+        <div class="card">
+          <!-- Search + Filter bar -->
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="text" id="searchInput" class="search-input"
+                     placeholder="Search by item name…"
+                     oninput="filterInventory()" />
+            </div>
+            <div class="filter-chips">
+              <button class="chip active" data-cat="all"          onclick="setCatFilter(this)">All</button>
+              <button class="chip"        data-cat="Electronics"  onclick="setCatFilter(this)">Electronics</button>
+              <button class="chip"        data-cat="Glassware"    onclick="setCatFilter(this)">Glassware</button>
+              <button class="chip"        data-cat="Chemicals"    onclick="setCatFilter(this)">Chemicals</button>
+              <button class="chip"        data-cat="Tools"        onclick="setCatFilter(this)">Tools</button>
+            </div>
+          </div>
+
+          <!-- Inventory Table -->
+          <div class="table-responsive">
+            <table id="inventoryTable">
+              <thead>
+                <tr>
+                  <th>#ID</th>
+                  <th>Item Name</th>
+                  <th>Category</th>
+                  <th>Total Qty</th>
+                  <th>Issued Qty</th>
+                  <th>Available Qty</th>
+                  <th>Stock Level</th>
+                  <th>Status</th>
+                  <th>Added On</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryTableBody">
+                <tr class="loading-row"><td colspan="10">Loading inventory data…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section><!-- /#section-inventory -->
+
+
+      <!-- ════════ CATEGORIES SECTION ════════ -->
+      <section id="section-categories" class="section">
+        <div class="section-header">
+          <div>
+            <h2>Inventory Categories</h2>
+            <p>Browse items organised by their laboratory category</p>
+          </div>
+        </div>
+
+        <div class="categories-grid" id="categoriesGrid">
+          <!-- Populated by JS -->
+          <div class="cat-card electronics">
+            <div class="cat-icon">🔌</div>
+            <div class="cat-name">Electronics</div>
+            <div class="cat-count">Loading…</div>
+          </div>
+          <div class="cat-card glassware">
+            <div class="cat-icon">🧪</div>
+            <div class="cat-name">Glassware</div>
+            <div class="cat-count">Loading…</div>
+          </div>
+          <div class="cat-card chemicals">
+            <div class="cat-icon">⚗️</div>
+            <div class="cat-name">Chemicals</div>
+            <div class="cat-count">Loading…</div>
+          </div>
+          <div class="cat-card tools">
+            <div class="cat-icon">🔧</div>
+            <div class="cat-name">Tools</div>
+            <div class="cat-count">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Chart for categories -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+              Items per Category – Detailed View
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-wrap" style="height:300px">
+              <canvas id="catDetailChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </section><!-- /#section-categories -->
+
+
+      <!-- ════════ ISSUE & RETURN (Coming Soon) ════════ -->
+      <section id="section-issue" class="section">
+        <div class="section-header">
+          <div><h2>Issue &amp; Return</h2><p>Track issued laboratory items</p></div>
+        </div>
+        <div class="card">
+          <div class="coming-soon">
+            <div class="coming-soon-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <h3>Full Issue &amp; Return Module</h3>
+            <p>The complete issue and return management system, including borrower records, due dates, and return history, will be developed in the next phase.</p>
+            <p class="text-muted mt-4">You can still issue items from the Inventory table using the <strong>Issue</strong> button.</p>
+            <span class="phase-badge">⚙ Phase 2 — Coming Soon</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════ REPORTS (Coming Soon) ════════ -->
+      <section id="section-reports" class="section">
+        <div class="section-header">
+          <div><h2>Reports</h2><p>Generate inventory reports and analytics</p></div>
+        </div>
+        <div class="card">
+          <div class="coming-soon">
+            <div class="coming-soon-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </div>
+            <h3>Advanced Reports Module</h3>
+            <p>Detailed reports including usage trends, category analytics, low-stock alerts, and PDF export will be available in the next development phase.</p>
+            <span class="phase-badge">⚙ Phase 2 — Coming Soon</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════════ SETTINGS (Coming Soon) ════════ -->
+      <section id="section-settings" class="section">
+        <div class="section-header">
+          <div><h2>Settings</h2><p>System configuration and preferences</p></div>
+        </div>
+        <div class="card">
+          <div class="coming-soon">
+            <div class="coming-soon-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </div>
+            <h3>Settings &amp; Configuration</h3>
+            <p>User management, system preferences, notification settings, and role-based access control will be developed in a future phase.</p>
+            <span class="phase-badge">⚙ Phase 3 — Coming Soon</span>
+          </div>
+        </div>
+      </section>
+
+    </main><!-- /.page-content -->
+  </div><!-- /.main-content -->
+
+</div><!-- /.layout -->
+
+
+<!-- ════════ ADD ITEM MODAL ════════ -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <h3 id="modalTitle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add New Inventory Item
+      </h3>
+      <button class="modal-close" onclick="closeAddModal()" aria-label="Close modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <form id="addItemForm" onsubmit="submitAddItem(event)" novalidate>
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label class="form-label" for="inputItemName">Item Name <span>*</span></label>
+          <input type="text" id="inputItemName" class="form-input"
+                 placeholder="e.g. Digital Multimeter" maxlength="150" required />
+          <div class="form-error-msg" id="errItemName">Please enter an item name.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputCategory">Category <span>*</span></label>
+          <select id="inputCategory" class="form-select" required>
+            <option value="">— Select a category —</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Glassware">Glassware</option>
+            <option value="Chemicals">Chemicals</option>
+            <option value="Tools">Tools</option>
+            <option value="Other">Other</option>
+          </select>
+          <div class="form-error-msg" id="errCategory">Please select a category.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="inputQty">Total Quantity <span>*</span></label>
+          <input type="number" id="inputQty" class="form-input"
+                 placeholder="e.g. 20" min="1" max="9999" required />
+          <div class="form-error-msg" id="errQty">Please enter a valid quantity (1–9999).</div>
+        </div>
+
+      </div><!-- /.modal-body -->
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeAddModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="addSubmitBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Item
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div><!-- /#addModal -->
+
+
+<!-- ════════ TOAST NOTIFICATIONS ════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+<!-- Custom Scripts -->
+<script src="script.js"></script>
+</body>
+</html>

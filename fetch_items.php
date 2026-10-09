@@ -1,13 +1,7 @@
 <?php
 /**
  * fetch_items.php
- * Returns inventory items as JSON with optional search & category filtering
- *
- * GET Parameters:
- *   search   (string) – search by item name (partial match)
- *   category (string) – filter by category; 'all' or empty = no filter
- *   limit    (int)    – max rows to return (default 100)
- *   offset   (int)    – pagination offset (default 0)
+ * Returns inventory items as JSON with search & filtering by category, status, and condition.
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -16,10 +10,12 @@ header('Access-Control-Allow-Origin: *');
 require_once 'db.php';
 
 // ── Read & Sanitize GET Params ────────────────────────────────────────────────
-$search   = isset($_GET['search'])   ? sanitize($_GET['search'])   : '';
-$category = isset($_GET['category']) ? sanitize($_GET['category']) : 'all';
-$limit    = isset($_GET['limit'])    ? max(1, (int)$_GET['limit']) : 100;
-$offset   = isset($_GET['offset'])   ? max(0, (int)$_GET['offset']): 0;
+$search    = isset($_GET['search'])    ? sanitize($_GET['search'])    : '';
+$category  = isset($_GET['category'])  ? sanitize($_GET['category'])  : 'all';
+$status    = isset($_GET['status'])    ? sanitize($_GET['status'])    : 'all';
+$condition = isset($_GET['condition']) ? sanitize($_GET['condition']) : 'all';
+$limit     = isset($_GET['limit'])     ? max(1, (int)$_GET['limit'])  : 200;
+$offset    = isset($_GET['offset'])    ? max(0, (int)$_GET['offset']) : 0;
 
 // ── Build Dynamic Query with Prepared Statements ──────────────────────────────
 $conditions = [];
@@ -27,14 +23,30 @@ $params     = [];
 $types      = '';
 
 if ($search !== '') {
-    $conditions[] = 'item_name LIKE ?';
-    $params[]     = '%' . $search . '%';
-    $types       .= 's';
+    $conditions[] = '(item_name LIKE ? OR item_code LIKE ? OR model_no LIKE ? OR location LIKE ?)';
+    $like = '%' . $search . '%';
+    $params[] = $like;
+    $params[] = $like;
+    $params[] = $like;
+    $params[] = $like;
+    $types   .= 'ssss';
 }
 
 if ($category !== '' && strtolower($category) !== 'all') {
     $conditions[] = 'category = ?';
     $params[]     = $category;
+    $types       .= 's';
+}
+
+if ($status !== '' && strtolower($status) !== 'all') {
+    $conditions[] = 'status = ?';
+    $params[]     = $status;
+    $types       .= 's';
+}
+
+if ($condition !== '' && strtolower($condition) !== 'all') {
+    $conditions[] = 'item_condition = ?';
+    $params[]     = $condition;
     $types       .= 's';
 }
 
@@ -51,9 +63,10 @@ $total_count = (int)$stmt_count->get_result()->fetch_assoc()['total'];
 $stmt_count->close();
 
 // Actual data
-$sql = "SELECT id, item_name, category,
+$sql = "SELECT id, item_code, item_name, model_no, category, location, unit,
                total_quantity, issued_quantity, available_quantity,
-               status, DATE_FORMAT(created_at,'%d %b %Y') AS created_date
+               status, item_condition, min_threshold,
+               DATE_FORMAT(created_at, '%d %b %Y') AS created_date
         FROM inventory_items
         $where
         ORDER BY created_at DESC
@@ -74,11 +87,15 @@ $result = $stmt->get_result();
 
 $items = [];
 while ($row = $result->fetch_assoc()) {
-    // Cast numeric fields to int for clean JSON output
     $row['id']                 = (int)$row['id'];
     $row['total_quantity']     = (int)$row['total_quantity'];
     $row['issued_quantity']    = (int)$row['issued_quantity'];
     $row['available_quantity'] = (int)$row['available_quantity'];
+    $row['min_threshold']      = (int)$row['min_threshold'];
+    $row['item_code']          = $row['item_code'] ?? ('EQ-' . str_pad($row['id'], 3, '0', STR_PAD_LEFT));
+    $row['model_no']           = $row['model_no'] ?? 'N/A';
+    $row['unit']               = $row['unit'] ?? 'Units';
+    $row['location']           = $row['location'] ?? 'Main Lab';
     $items[] = $row;
 }
 

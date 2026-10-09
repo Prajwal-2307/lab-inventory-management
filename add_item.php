@@ -1,41 +1,41 @@
 <?php
 /**
  * add_item.php
- * Inserts a new inventory item into MySQL
- * Accepts POST (JSON body or form data)
+ * Inserts a new equipment/inventory item into MySQL with full laboratory details.
  */
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 
-// Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    send_json(false, 'Method not allowed. Use POST.');
-    // send_json exits, but require_once not called yet – echo directly:
+    echo json_encode(['success' => false, 'message' => 'Method not allowed. Use POST.']);
     exit;
 }
 
 require_once 'db.php';
 
-// ── Read Input (supports both JSON body and form-data) ────────────────────────
+// ── Read Input ────────────────────────────────────────────────────────────────
 $input = [];
-
 $raw = file_get_contents('php://input');
 if (!empty($raw)) {
     $input = json_decode($raw, true) ?? [];
 }
-
-// Fall back to $_POST if no JSON body
 if (empty($input)) {
     $input = $_POST;
 }
 
 // ── Extract & Validate Fields ─────────────────────────────────────────────────
-$item_name  = sanitize($input['item_name']  ?? '');
-$category   = sanitize($input['category']   ?? '');
-$total_qty  = isset($input['total_quantity']) ? (int)$input['total_quantity'] : -1;
+$item_name      = sanitize($input['item_name']      ?? '');
+$item_code      = sanitize($input['item_code']      ?? '');
+$model_no       = sanitize($input['model_no']       ?? '');
+$category       = sanitize($input['category']       ?? '');
+$location       = sanitize($input['location']       ?? 'Main Lab - Rack 1');
+$unit           = sanitize($input['unit']           ?? 'Units');
+$total_qty      = isset($input['total_quantity'])   ? (int)$input['total_quantity'] : -1;
+$item_condition = sanitize($input['item_condition'] ?? 'Good');
+$min_threshold  = isset($input['min_threshold'])    ? max(1, (int)$input['min_threshold']) : 3;
 
 $errors = [];
 
@@ -52,6 +52,11 @@ if ($category === '') {
     $errors[] = 'Invalid category selected.';
 }
 
+$allowed_conditions = ['New', 'Good', 'Fair', 'Needs Maintenance', 'Under Repair'];
+if (!in_array($item_condition, $allowed_conditions, true)) {
+    $item_condition = 'Good';
+}
+
 if ($total_qty < 0) {
     $errors[] = 'Total quantity is required.';
 } elseif ($total_qty === 0) {
@@ -64,50 +69,70 @@ if (!empty($errors)) {
     send_json(false, implode(' ', $errors));
 }
 
-// ── Determine Status ──────────────────────────────────────────────────────────
-// New items have 0 issued; status is computed by DB trigger, but we calculate here too
-$issued_qty    = 0;
-$available_qty = $total_qty;
-
-if ($available_qty <= 0) {
-    $status = 'Out of Stock';
-} elseif ($available_qty <= 3) {
-    $status = 'Low Stock';
-} else {
-    $status = 'Available';
+// Auto-generate item code if blank
+if ($item_code === '') {
+    $prefixMap = [
+        'Electronics' => 'EQ-EL',
+        'Glassware'   => 'GW-CH',
+        'Chemicals'   => 'CH-RG',
+        'Tools'       => 'TL-ME',
+        'Other'       => 'ITM-GN'
+    ];
+    $prefix = $prefixMap[$category] ?? 'EQ-LAB';
+    $item_code = $prefix . '-' . strtoupper(substr(uniqid(), -4));
 }
 
-// ── Check for Duplicate Item Name ─────────────────────────────────────────────
+// ── Check for Duplicate Item Code or Name ─────────────────────────────────────
 $stmt_check = $conn->prepare(
-    'SELECT id FROM inventory_items WHERE item_name = ? LIMIT 1'
+    'SELECT id FROM inventory_items WHERE item_name = ? OR item_code = ? LIMIT 1'
 );
-$stmt_check->bind_param('s', $item_name);
+$stmt_check->bind_param('ss', $item_name, $item_code);
 $stmt_check->execute();
 $stmt_check->store_result();
 
 if ($stmt_check->num_rows > 0) {
     $stmt_check->close();
-    send_json(false, 'An item with this name already exists in the inventory.');
+    send_json(false, 'An item with this name or code already exists in the inventory.');
 }
 $stmt_check->close();
 
+// ── Determine Status ──────────────────────────────────────────────────────────
+$issued_qty    = 0;
+$available_qty = $total_qty;
+
+if ($available_qty <= 0) {
+    $status = 'Out of Stock';
+} elseif ($available_qty <= $min_threshold) {
+    $status = 'Low Stock';
+} else {
+    $status = 'Available';
+}
+
 // ── Insert New Item ───────────────────────────────────────────────────────────
 $sql = "INSERT INTO inventory_items
-          (item_name, category, total_quantity, issued_quantity, available_quantity, status)
-        VALUES (?, ?, ?, ?, ?, ?)";
+          (item_code, item_name, model_no, category, location, unit,
+           total_quantity, issued_quantity, available_quantity,
+           status, item_condition, min_threshold)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
-    send_json(false, 'Database error: ' . $conn->error);
+    send_json(false, 'Database preparation error: ' . $conn->error);
 }
 
-$stmt->bind_param('ssiiss',
+$stmt->bind_param('ssssssiiissi',
+    $item_code,
     $item_name,
+    $model_no,
     $category,
+    $location,
+    $unit,
     $total_qty,
     $issued_qty,
     $available_qty,
-    $status
+    $status,
+    $item_condition,
+    $min_threshold
 );
 
 if ($stmt->execute()) {
@@ -115,13 +140,17 @@ if ($stmt->execute()) {
     $stmt->close();
     $conn->close();
 
-    send_json(true, "Item '$item_name' added successfully!", [
+    send_json(true, "Item '{$item_name}' added successfully!", [
         'item_id'       => $new_id,
+        'item_code'     => $item_code,
         'item_name'     => $item_name,
         'category'      => $category,
+        'location'      => $location,
+        'unit'          => $unit,
         'total_qty'     => $total_qty,
         'available_qty' => $available_qty,
         'status'        => $status,
+        'item_condition'=> $item_condition
     ]);
 } else {
     $err = $stmt->error;

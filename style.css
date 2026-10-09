@@ -1201,3 +1201,395 @@ tbody td {
 .stock-bar.high   { background: var(--clr-success); }
 .stock-bar.medium { background: var(--clr-warning); }
 .stock-bar.low    { background: var(--clr-danger); }
+
+/* ================================================================
+   PHASE 2 (70%) EXTENSIONS: Issue & Return, Reports, Maintenance
+   ================================================================ */
+
+/* ── Tabbed View Navigation ─────────────────────────────────────── */
+.tabs-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid var(--clr-border);
+  padding: 0 20px;
+  background: #fafbfc;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  font-size: .83rem;
+  font-weight: 600;
+  color: var(--clr-text-500);
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all var(--dur) var(--ease);
+  cursor: pointer;
+}
+
+.tab-btn:hover {
+  color: var(--clr-green-600);
+}
+
+.tab-btn.active {
+  color: var(--clr-green-700);
+  border-bottom-color: var(--clr-green-600);
+  background: #fff;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.tab-btn svg { width: 16px; height: 16px; }
+
+.tab-count-badge {
+  font-size: .68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.tab-btn.active .tab-count-badge {
+  background: var(--clr-green-100);
+  color: var(--clr-green-700);
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+/* ── Circulation & Condition Badges ─────────────────────────────── */
+.badge-active   { background: #e0f2fe; color: #0369a1; }
+.badge-active .badge-dot { background: #0284c7; }
+
+.badge-overdue  { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+.badge-overdue .badge-dot {
+  background: #dc2626;
+  animation: pulse-danger 1.5s infinite;
+}
+
+.badge-returned { background: #dcfce7; color: #15803d; }
+.badge-returned .badge-dot { background: #16a34a; }
+
+.badge-scheduled { background: #f1f5f9; color: #475569; }
+.badge-scheduled .badge-dot { background: #64748b; }
+
+.badge-progress  { background: #ede9fe; color: #6d28d9; }
+.badge-progress .badge-dot { background: #7c3aed; }
+
+.badge-completed { background: #dcfce7; color: #15803d; }
+.badge-completed .badge-dot { background: #16a34a; }
+
+/* Condition Badges */
+.badge-cond-new   { background: #ccfbf1; color: #0f766e; }
+.badge-cond-good  { background: #dcfce7; color: #15803d; }
+.badge-cond-fair  { background: #e0f2fe; color: #0369a1; }
+.badge-cond-needs { background: #fef9c3; color: #a16207; }
+.badge-cond-repair{ background: #fee2e2; color: #b91c1c; }
+
+@keyframes pulse-danger {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* ── Table Action Button Group ──────────────────────────────────── */
+.action-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-icon-action {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 1px solid var(--clr-border);
+  color: var(--clr-text-700);
+  transition: all var(--dur) var(--ease);
+  cursor: pointer;
+}
+
+.btn-icon-action svg { width: 14px; height: 14px; }
+
+.btn-icon-action:hover {
+  background: var(--clr-green-50);
+  border-color: var(--clr-green-500);
+  color: var(--clr-green-700);
+  transform: translateY(-1px);
+}
+
+.btn-icon-action.danger:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #dc2626;
+}
+
+.btn-return {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(22,163,74,.3);
+  font-weight: 600;
+}
+.btn-return:hover {
+  background: linear-gradient(135deg, #15803d, #16a34a);
+  transform: translateY(-1px);
+}
+
+.btn-restock {
+  background: linear-gradient(135deg, var(--clr-gold-500), var(--clr-gold-400));
+  color: var(--clr-green-900);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(201,168,76,.3);
+}
+.btn-restock:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* ── Reports Module Layout ──────────────────────────────────────── */
+.report-toolbar {
+  background: #ffffff;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.report-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.report-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.report-filter-label {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--clr-text-500);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.report-select, .report-date-input {
+  padding: 8px 12px;
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  font-size: .8rem;
+  background: #fff;
+  color: var(--clr-text-900);
+  outline: none;
+  transition: border-color var(--dur) var(--ease);
+}
+
+.report-select:focus, .report-date-input:focus {
+  border-color: var(--clr-green-500);
+}
+
+.report-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-meta-banner {
+  background: linear-gradient(135deg, var(--clr-green-900), var(--clr-green-800));
+  color: #fff;
+  padding: 18px 22px;
+  border-radius: var(--radius-md);
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.report-meta-info h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.report-meta-info p {
+  font-size: .75rem;
+  color: var(--clr-gold-300);
+  margin-top: 2px;
+}
+
+.report-meta-kpis {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.report-kpi-chip {
+  background: rgba(255,255,255,.1);
+  backdrop-filter: blur(8px);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.15);
+  text-align: center;
+}
+
+.report-kpi-num {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--clr-gold-400);
+  line-height: 1.1;
+}
+
+.report-kpi-lbl {
+  font-size: .65rem;
+  color: rgba(255,255,255,.8);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+/* ── Equipment Detail Specs Card ────────────────────────────────── */
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.spec-box {
+  background: #f8fafc;
+  border: 1px solid var(--clr-border);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+}
+
+.spec-title {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--clr-text-500);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.spec-val {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--clr-text-900);
+  margin-top: 4px;
+}
+
+/* ── Print Styles ───────────────────────────────────────────────── */
+.print-only-header {
+  display: none;
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
+  .sidebar,
+  .topbar,
+  .hamburger-btn,
+  .notif-btn,
+  .btn,
+  .filter-bar,
+  .report-toolbar,
+  .quick-actions,
+  .modal-overlay,
+  .toast-container,
+  .alert-strip,
+  .tabs-header {
+    display: none !important;
+  }
+
+  .layout {
+    display: block !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .section {
+    display: none !important;
+  }
+
+  .section.active {
+    display: block !important;
+  }
+
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .print-only-header {
+    display: block !important;
+    padding: 20px 0 16px;
+    border-bottom: 2px solid #0a2e1a;
+    margin-bottom: 20px;
+  }
+
+  .print-only-header h1 {
+    font-size: 18pt;
+    color: #0a2e1a;
+    margin-bottom: 4px;
+  }
+
+  .print-only-header p {
+    font-size: 10pt;
+    color: #475569;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  thead th {
+    background: #0a2e1a !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  tbody tr {
+    page-break-inside: avoid;
+    border-bottom: 1px solid #cbd5e1 !important;
+  }
+
+  .badge {
+    border: 1px solid #94a3b8;
+    color: #000 !important;
+    background: #f1f5f9 !important;
+  }
+}
+

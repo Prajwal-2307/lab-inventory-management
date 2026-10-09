@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Lab Inventory Management System – manage laboratory equipment, chemicals, and materials efficiently." />
+  <meta name="description" content="Lab Inventory Management System – Manage equipment records, track availability, monitor usage and maintenance, and generate inventory reports." />
   <title>Lab Inventory Management System</title>
 
   <!-- Google Fonts -->
@@ -50,7 +50,6 @@
       <p class="nav-label">Main Menu</p>
 
       <li class="nav-item active" data-section="dashboard" onclick="navigate('dashboard', this)">
-        <!-- Dashboard icon -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -60,7 +59,6 @@
       </li>
 
       <li class="nav-item" data-section="inventory" onclick="navigate('inventory', this)">
-        <!-- Package icon -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 10V6a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 6v4"/>
@@ -72,7 +70,6 @@
       </li>
 
       <li class="nav-item" data-section="categories" onclick="navigate('categories', this)">
-        <!-- Tag icon -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
@@ -81,20 +78,28 @@
         <span class="nav-item-text">Categories</span>
       </li>
 
-      <p class="nav-label" style="margin-top:10px;">Management</p>
+      <p class="nav-label" style="margin-top:10px;">Operations &amp; Audits</p>
 
       <li class="nav-item" data-section="issue" onclick="navigate('issue', this)">
-        <!-- ArrowRight icon -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <line x1="5" y1="12" x2="19" y2="12"/>
           <polyline points="12 5 19 12 12 19"/>
         </svg>
         <span class="nav-item-text">Issue &amp; Return</span>
+        <span class="nav-badge" id="sidebarIssueCount" style="background:rgba(2,132,199,0.3);color:#7dd3fc">–</span>
+      </li>
+
+      <li class="nav-item" data-section="maintenance" onclick="navigate('maintenance', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+        <span class="nav-item-text">Maintenance</span>
+        <span class="nav-badge" id="sidebarMaintCount" style="background:rgba(217,119,6,0.3);color:#fde68a">–</span>
       </li>
 
       <li class="nav-item" data-section="reports" onclick="navigate('reports', this)">
-        <!-- BarChart icon -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
@@ -104,7 +109,6 @@
       </li>
 
       <li class="nav-item" data-section="settings" onclick="navigate('settings', this)">
-        <!-- Settings icon -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
@@ -116,7 +120,7 @@
 
     <!-- Footer -->
     <div class="sidebar-footer">
-      <p>Lab Inventory v1.0<br>Phase 1 &mdash; 30% Complete</p>
+      <p>Lab Inventory v2.0<br>Phase 2 &mdash; <strong>70% Complete</strong></p>
     </div>
 
   </aside><!-- /.sidebar -->
@@ -136,7 +140,7 @@
         </button>
         <div class="topbar-title">
           <h1 id="pageTitle">Dashboard</h1>
-          <p>Welcome to Lab Inventory Management</p>
+          <p>Laboratory Equipment Records, Circulation, Maintenance &amp; Inventory Reports</p>
         </div>
       </div>
       <div class="topbar-right">
@@ -149,8 +153,8 @@
           <span class="notif-dot" id="notifDot"></span>
         </button>
         <div class="user-chip">
-          <div class="user-avatar">AD</div>
-          <span class="user-name">Admin</span>
+          <div class="user-avatar">LA</div>
+          <span class="user-name">Lab In-Charge</span>
         </div>
       </div>
     </header>
@@ -160,6 +164,15 @@
 
       <!-- ════════ DASHBOARD SECTION ════════ -->
       <section id="section-dashboard" class="section active">
+
+        <!-- Alert strip for overdue items -->
+        <div class="alert-strip hidden" id="overdueAlert" style="background:#fef2f2;border-left:4px solid #dc2626;color:#991b1b;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span><strong id="overdueMsg">1 item</strong> is overdue for return! Please follow up with borrower(s).</span>
+        </div>
 
         <!-- Alert strip for low stock -->
         <div class="alert-strip hidden" id="lowStockAlert">
@@ -171,8 +184,8 @@
           <span><strong id="lowStockMsg">2 items</strong> are running low on stock. Please restock soon.</span>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid">
+        <!-- Stats Cards Grid -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));">
 
           <div class="stat-card green">
             <div class="stat-icon">
@@ -185,14 +198,8 @@
             </div>
             <div class="stat-info">
               <div class="stat-value" id="statTotal">–</div>
-              <div class="stat-label">Total Items</div>
-              <div class="stat-delta">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                     stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px">
-                  <polyline points="18 15 12 9 6 15"/>
-                </svg>
-                All types
-              </div>
+              <div class="stat-label">Equipment Items</div>
+              <div class="stat-delta"><span id="statTotalUnits">–</span> total units</div>
             </div>
           </div>
 
@@ -206,8 +213,8 @@
             </div>
             <div class="stat-info">
               <div class="stat-value" id="statAvailable">–</div>
-              <div class="stat-label">Available Items</div>
-              <div class="stat-delta">Ready for use</div>
+              <div class="stat-label">Available Units</div>
+              <div class="stat-delta">In stock for use</div>
             </div>
           </div>
 
@@ -215,13 +222,13 @@
             <div class="stat-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
               </svg>
             </div>
             <div class="stat-info">
-              <div class="stat-value" id="statIssued">–</div>
-              <div class="stat-label">Issued Items</div>
-              <div class="stat-delta" style="color:#0284c7">Currently out</div>
+              <div class="stat-value" id="statActiveLoans">–</div>
+              <div class="stat-label">Active Loans</div>
+              <div class="stat-delta" id="statOverdueLoansDelta" style="color:#0284c7">Currently with students/staff</div>
             </div>
           </div>
 
@@ -235,8 +242,22 @@
             </div>
             <div class="stat-info">
               <div class="stat-value" id="statLowStock">–</div>
-              <div class="stat-label">Low Stock Items</div>
-              <div class="stat-delta" style="color:#ea580c">Needs restocking</div>
+              <div class="stat-label">Low Stock Alerts</div>
+              <div class="stat-delta" style="color:#ea580c">Needs replenishment</div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="border-top:3px solid #7c3aed">
+            <div class="stat-icon" style="background:#ede9fe;color:#7c3aed">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="statMaint">–</div>
+              <div class="stat-label">In Maintenance</div>
+              <div class="stat-delta" style="color:#7c3aed">Repair &amp; calibration</div>
             </div>
           </div>
 
@@ -250,26 +271,33 @@
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>
             </svg>
-            View Inventory
+            Manage Equipment
           </button>
           <button class="btn btn-gold" onclick="openAddModal()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Add New Item
+            Add New Equipment
           </button>
-          <button class="btn btn-outline" onclick="navigate('categories', document.querySelector('[data-section=categories]'))">
+          <button class="btn btn-issue" onclick="openIssueModal()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-              <line x1="7" y1="7" x2="7.01" y2="7"/>
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
             </svg>
-            Browse Categories
+            Issue Equipment
+          </button>
+          <button class="btn btn-outline" onclick="navigate('reports', document.querySelector('[data-section=reports]'))">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            Generate Reports
           </button>
         </div>
 
-        <!-- Charts + Table Grid -->
+        <!-- Charts Grid -->
         <div class="dashboard-grid">
 
           <!-- Inventory by Category Chart -->
@@ -291,7 +319,7 @@
             </div>
           </div>
 
-          <!-- Available vs Issued Doughnut -->
+          <!-- Stock Overview Doughnut -->
           <div class="card">
             <div class="card-header">
               <div class="card-title">
@@ -300,7 +328,7 @@
                   <circle cx="12" cy="12" r="10"/>
                   <polyline points="12 6 12 12 16 14"/>
                 </svg>
-                Stock Overview
+                Stock Availability Overview
               </div>
             </div>
             <div class="chart-container">
@@ -323,28 +351,30 @@
                 <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
                 <line x1="3" y1="18" x2="3.01" y2="18"/>
               </svg>
-              Recent Inventory
+              Recent Laboratory Equipment Records
             </div>
             <button class="btn btn-primary btn-sm" onclick="navigate('inventory', document.querySelector('[data-section=inventory]'))">
-              View All
+              View All Equipment
             </button>
           </div>
           <div class="table-responsive">
             <table id="dashboardTable">
               <thead>
                 <tr>
-                  <th>#ID</th>
-                  <th>Item Name</th>
+                  <th>Code</th>
+                  <th>Item Name &amp; Model</th>
                   <th>Category</th>
+                  <th>Location</th>
                   <th>Total</th>
                   <th>Issued</th>
                   <th>Available</th>
+                  <th>Condition</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody id="dashboardTableBody">
-                <tr class="loading-row"><td colspan="8">Loading inventory data…</td></tr>
+                <tr class="loading-row"><td colspan="10">Loading inventory data…</td></tr>
               </tbody>
             </table>
           </div>
@@ -357,20 +387,22 @@
       <section id="section-inventory" class="section">
         <div class="section-header">
           <div>
-            <h2>Inventory Management</h2>
-            <p>Manage all laboratory equipment, chemicals, and materials</p>
+            <h2>Equipment &amp; Inventory Management</h2>
+            <p>Manage equipment specifications, track availability, storage locations, and condition health</p>
           </div>
-          <button class="btn btn-primary" onclick="openAddModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Add New Item
-          </button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="openAddModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add New Equipment
+            </button>
+          </div>
         </div>
 
         <div class="card">
-          <!-- Search + Filter bar -->
+          <!-- Multi-Criteria Filter Bar -->
           <div class="filter-bar">
             <div class="search-wrap">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -378,9 +410,10 @@
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
               <input type="text" id="searchInput" class="search-input"
-                     placeholder="Search by item name…"
+                     placeholder="Search equipment, code, model, location…"
                      oninput="filterInventory()" />
             </div>
+
             <div class="filter-chips">
               <button class="chip active" data-cat="all"          onclick="setCatFilter(this)">All</button>
               <button class="chip"        data-cat="Electronics"  onclick="setCatFilter(this)">Electronics</button>
@@ -388,6 +421,24 @@
               <button class="chip"        data-cat="Chemicals"    onclick="setCatFilter(this)">Chemicals</button>
               <button class="chip"        data-cat="Tools"        onclick="setCatFilter(this)">Tools</button>
             </div>
+
+            <!-- Condition Filter -->
+            <select id="filterCondition" class="report-select" onchange="filterInventory()" style="margin-left:auto;">
+              <option value="all">All Conditions</option>
+              <option value="New">New</option>
+              <option value="Good">Good</option>
+              <option value="Fair">Fair</option>
+              <option value="Needs Maintenance">Needs Maintenance</option>
+              <option value="Under Repair">Under Repair</option>
+            </select>
+
+            <!-- Status Filter -->
+            <select id="filterStatus" class="report-select" onchange="filterInventory()">
+              <option value="all">All Statuses</option>
+              <option value="Available">Available</option>
+              <option value="Low Stock">Low Stock</option>
+              <option value="Out of Stock">Out of Stock</option>
+            </select>
           </div>
 
           <!-- Inventory Table -->
@@ -395,20 +446,21 @@
             <table id="inventoryTable">
               <thead>
                 <tr>
-                  <th>#ID</th>
-                  <th>Item Name</th>
+                  <th>Code</th>
+                  <th>Item Name &amp; Model</th>
                   <th>Category</th>
-                  <th>Total Qty</th>
-                  <th>Issued Qty</th>
-                  <th>Available Qty</th>
-                  <th>Stock Level</th>
+                  <th>Location</th>
+                  <th>Total</th>
+                  <th>Issued</th>
+                  <th>Available</th>
+                  <th>Stock Meter</th>
+                  <th>Condition</th>
                   <th>Status</th>
-                  <th>Added On</th>
-                  <th>Action</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="inventoryTableBody">
-                <tr class="loading-row"><td colspan="10">Loading inventory data…</td></tr>
+                <tr class="loading-row"><td colspan="11">Loading inventory data…</td></tr>
               </tbody>
             </table>
           </div>
@@ -422,32 +474,15 @@
         <div class="section-header">
           <div>
             <h2>Inventory Categories</h2>
-            <p>Browse items organised by their laboratory category</p>
+            <p>Browse laboratory items organized by domain category</p>
           </div>
         </div>
 
         <div class="categories-grid" id="categoriesGrid">
-          <!-- Populated by JS -->
-          <div class="cat-card electronics">
-            <div class="cat-icon">🔌</div>
-            <div class="cat-name">Electronics</div>
-            <div class="cat-count">Loading…</div>
-          </div>
-          <div class="cat-card glassware">
-            <div class="cat-icon">🧪</div>
-            <div class="cat-name">Glassware</div>
-            <div class="cat-count">Loading…</div>
-          </div>
-          <div class="cat-card chemicals">
-            <div class="cat-icon">⚗️</div>
-            <div class="cat-name">Chemicals</div>
-            <div class="cat-count">Loading…</div>
-          </div>
-          <div class="cat-card tools">
-            <div class="cat-icon">🔧</div>
-            <div class="cat-name">Tools</div>
-            <div class="cat-count">Loading…</div>
-          </div>
+          <div class="cat-card electronics"><div class="cat-icon">🔌</div><div class="cat-name">Electronics</div><div class="cat-count">Loading…</div></div>
+          <div class="cat-card glassware"><div class="cat-icon">🧪</div><div class="cat-name">Glassware</div><div class="cat-count">Loading…</div></div>
+          <div class="cat-card chemicals"><div class="cat-icon">⚗️</div><div class="cat-name">Chemicals</div><div class="cat-count">Loading…</div></div>
+          <div class="cat-card tools"><div class="cat-icon">🔧</div><div class="cat-name">Tools</div><div class="cat-count">Loading…</div></div>
         </div>
 
         <!-- Chart for categories -->
@@ -459,7 +494,7 @@
                 <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
                 <line x1="6" y1="20" x2="6" y2="14"/>
               </svg>
-              Items per Category – Detailed View
+              Items per Category – Detailed Breakdown
             </div>
           </div>
           <div class="chart-container">
@@ -472,69 +507,382 @@
       </section><!-- /#section-categories -->
 
 
-      <!-- ════════ ISSUE & RETURN (Coming Soon) ════════ -->
+      <!-- ════════ ISSUE & RETURN SECTION (PHASE 2 - 70%) ════════ -->
       <section id="section-issue" class="section">
         <div class="section-header">
-          <div><h2>Issue &amp; Return</h2><p>Track issued laboratory items</p></div>
+          <div>
+            <h2>Issue &amp; Return Module</h2>
+            <p>Track student and researcher equipment loans, check due dates, and record returns</p>
+          </div>
+          <button class="btn btn-primary" onclick="openIssueModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+            Issue Equipment
+          </button>
         </div>
-        <div class="card">
-          <div class="coming-soon">
-            <div class="coming-soon-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
+
+        <!-- Loan Summary Ribbon -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom:20px;">
+          <div class="stat-card blue">
+            <div class="stat-info">
+              <div class="stat-value" id="loanStatActive">–</div>
+              <div class="stat-label">Currently Borrowed</div>
+              <div class="stat-delta">Active student/staff loans</div>
             </div>
-            <h3>Full Issue &amp; Return Module</h3>
-            <p>The complete issue and return management system, including borrower records, due dates, and return history, will be developed in the next phase.</p>
-            <p class="text-muted mt-4">You can still issue items from the Inventory table using the <strong>Issue</strong> button.</p>
-            <span class="phase-badge">⚙ Phase 2 — Coming Soon</span>
+          </div>
+          <div class="stat-card orange" id="loanOverdueCard">
+            <div class="stat-info">
+              <div class="stat-value" id="loanStatOverdue" style="color:#dc2626">–</div>
+              <div class="stat-label">Overdue Loans</div>
+              <div class="stat-delta" style="color:#dc2626">Needs return immediately</div>
+            </div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-info">
+              <div class="stat-value" id="loanStatReturned">–</div>
+              <div class="stat-label">Returned Records</div>
+              <div class="stat-delta">Restored to inventory</div>
+            </div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-info">
+              <div class="stat-value" id="loanStatTotal">–</div>
+              <div class="stat-label">Total Circulations</div>
+              <div class="stat-delta">Cumulative log count</div>
+            </div>
           </div>
         </div>
-      </section>
 
-      <!-- ════════ REPORTS (Coming Soon) ════════ -->
-      <section id="section-reports" class="section">
+        <div class="card">
+          <!-- Tab Navigation -->
+          <div class="tabs-header">
+            <button class="tab-btn active" id="tabBtnActiveLoans" onclick="switchIssueTab('active')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Active Loans
+              <span class="tab-count-badge" id="tabActiveCount">0</span>
+            </button>
+            <button class="tab-btn" id="tabBtnHistoryLoans" onclick="switchIssueTab('history')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Circulation History &amp; Audit Log
+              <span class="tab-count-badge" id="tabHistoryCount">0</span>
+            </button>
+          </div>
+
+          <!-- Filter Bar -->
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="loanSearchInput" class="search-input"
+                     placeholder="Search borrower name, ID, or item…"
+                     oninput="filterLoans()" />
+            </div>
+            <div class="filter-chips">
+              <button class="chip active" data-loan-status="all" onclick="setLoanStatusFilter(this)">All</button>
+              <button class="chip" data-loan-status="Active"   onclick="setLoanStatusFilter(this)">Active</button>
+              <button class="chip" data-loan-status="Overdue"  onclick="setLoanStatusFilter(this)">Overdue</button>
+              <button class="chip" data-loan-status="Returned" onclick="setLoanStatusFilter(this)">Returned</button>
+            </div>
+          </div>
+
+          <!-- Tab Pane: Active Loans -->
+          <div class="tab-pane active" id="paneActiveLoans">
+            <div class="table-responsive">
+              <table id="activeLoansTable">
+                <thead>
+                  <tr>
+                    <th>Loan #</th>
+                    <th>Equipment Name &amp; Code</th>
+                    <th>Borrower Name &amp; ID</th>
+                    <th>Department</th>
+                    <th>Qty</th>
+                    <th>Issued On</th>
+                    <th>Due Date &amp; Status</th>
+                    <th>Purpose / Remarks</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="activeLoansTableBody">
+                  <tr class="loading-row"><td colspan="9">Loading active loans…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tab Pane: History -->
+          <div class="tab-pane" id="paneHistoryLoans">
+            <div class="table-responsive">
+              <table id="historyLoansTable">
+                <thead>
+                  <tr>
+                    <th>Loan #</th>
+                    <th>Equipment</th>
+                    <th>Borrower</th>
+                    <th>Qty</th>
+                    <th>Issued Date</th>
+                    <th>Due Date</th>
+                    <th>Returned Date</th>
+                    <th>Condition on Return</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="historyLoansTableBody">
+                  <tr class="loading-row"><td colspan="10">Loading loan history…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section><!-- /#section-issue -->
+
+
+      <!-- ════════ MAINTENANCE SECTION (PHASE 2 - 70%) ════════ -->
+      <section id="section-maintenance" class="section">
         <div class="section-header">
-          <div><h2>Reports</h2><p>Generate inventory reports and analytics</p></div>
+          <div>
+            <h2>Equipment Maintenance &amp; Health</h2>
+            <p>Schedule calibrations, track repairs, and manage equipment operational health</p>
+          </div>
+          <button class="btn btn-gold" onclick="openMaintModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+            </svg>
+            Schedule Maintenance Ticket
+          </button>
         </div>
-        <div class="card">
-          <div class="coming-soon">
-            <div class="coming-soon-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-                <line x1="6" y1="20" x2="6" y2="14"/>
-              </svg>
+
+        <!-- Maintenance Stats Ribbon -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom:20px;">
+          <div class="stat-card orange">
+            <div class="stat-info">
+              <div class="stat-value" id="maintStatProgress">–</div>
+              <div class="stat-label">In Progress</div>
+              <div class="stat-delta" style="color:#ea580c">Under active repair</div>
             </div>
-            <h3>Advanced Reports Module</h3>
-            <p>Detailed reports including usage trends, category analytics, low-stock alerts, and PDF export will be available in the next development phase.</p>
-            <span class="phase-badge">⚙ Phase 2 — Coming Soon</span>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-info">
+              <div class="stat-value" id="maintStatScheduled">–</div>
+              <div class="stat-label">Scheduled</div>
+              <div class="stat-delta">Upcoming inspection</div>
+            </div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-info">
+              <div class="stat-value" id="maintStatCompleted">–</div>
+              <div class="stat-label">Completed</div>
+              <div class="stat-delta">Passed &amp; certified</div>
+            </div>
+          </div>
+          <div class="stat-card gold">
+            <div class="stat-info">
+              <div class="stat-value" id="maintStatExpense">–</div>
+              <div class="stat-label">Total Expense ($)</div>
+              <div class="stat-delta">Maintenance spend</div>
+            </div>
           </div>
         </div>
-      </section>
 
-      <!-- ════════ SETTINGS (Coming Soon) ════════ -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+              Maintenance &amp; Calibration Logs
+            </div>
+            <div>
+              <select id="maintFilterStatus" class="report-select" onchange="loadMaintenance()">
+                <option value="all">All Statuses</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table id="maintenanceTable">
+              <thead>
+                <tr>
+                  <th>Ticket #</th>
+                  <th>Equipment &amp; Code</th>
+                  <th>Category &amp; Location</th>
+                  <th>Maintenance Type</th>
+                  <th>Technician / Vendor</th>
+                  <th>Start Date</th>
+                  <th>Completion Date</th>
+                  <th>Cost</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="maintenanceTableBody">
+                <tr class="loading-row"><td colspan="11">Loading maintenance records…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section><!-- /#section-maintenance -->
+
+
+      <!-- ════════ REPORTS SECTION (PHASE 2 - 70%) ════════ -->
+      <section id="section-reports" class="section">
+        <div class="print-only-header">
+          <h1>Laboratory Inventory &amp; Audit Report</h1>
+          <p>College of Engineering &amp; Sciences &bull; Central Research Laboratories &bull; Generated: <span id="printDate"></span></p>
+        </div>
+
+        <div class="section-header">
+          <div>
+            <h2>Inventory Reports &amp; Analytics</h2>
+            <p>Generate stock valuations, audit reports, circulation analytics, and export spreadsheets</p>
+          </div>
+        </div>
+
+        <!-- Report Toolbar -->
+        <div class="report-toolbar">
+          <div class="report-filters">
+            <div class="report-filter-item">
+              <span class="report-filter-label">Report Type</span>
+              <select id="reportTypeSelect" class="report-select" onchange="loadReports()">
+                <option value="inventory">Comprehensive Inventory Stock Report</option>
+                <option value="loans">Equipment Circulation &amp; Loan History</option>
+                <option value="low_stock">Low Stock &amp; Replenishment Alert Report</option>
+                <option value="maintenance">Maintenance, Repair &amp; Health Report</option>
+              </select>
+            </div>
+
+            <div class="report-filter-item">
+              <span class="report-filter-label">Category</span>
+              <select id="reportCategorySelect" class="report-select" onchange="loadReports()">
+                <option value="all">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Glassware">Glassware</option>
+                <option value="Chemicals">Chemicals</option>
+                <option value="Tools">Tools</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="report-actions">
+            <button class="btn btn-outline" id="exportCsvBtn" onclick="exportReportCSV()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export CSV
+            </button>
+            <button class="btn btn-primary" id="printReportBtn" onclick="printReport()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              Print / Save PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Meta Banner -->
+        <div class="report-meta-banner" id="reportMetaBanner">
+          <div class="report-meta-info">
+            <h3 id="reportTitleText">Laboratory Inventory Stock Report</h3>
+            <p id="reportSubText">Overview of all equipment records, stock units, and operational health</p>
+          </div>
+          <div class="report-meta-kpis" id="reportMetaKpis">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Visual Analytics Grid for Reports -->
+        <div class="dashboard-grid" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span id="reportChart1Title">Category Distribution</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <div class="chart-wrap" style="height:250px">
+                <canvas id="reportChart1"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="reportChart2Title">Condition &amp; Health Status</span>
+              </div>
+            </div>
+            <div class="chart-container">
+              <div class="chart-wrap" style="height:250px">
+                <canvas id="reportChart2"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Table Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" id="reportTableTitle">Report Records Dataset</div>
+            <span class="text-muted" id="reportRowCount">–</span>
+          </div>
+          <div class="table-responsive">
+            <table id="reportTable">
+              <thead id="reportTableHead">
+                <!-- Dynamically injected -->
+              </thead>
+              <tbody id="reportTableBody">
+                <tr class="loading-row"><td colspan="8">Generating report dataset…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section><!-- /#section-reports -->
+
+
+      <!-- ════════ SETTINGS SECTION ════════ -->
       <section id="section-settings" class="section">
         <div class="section-header">
-          <div><h2>Settings</h2><p>System configuration and preferences</p></div>
+          <div><h2>Settings &amp; Configuration</h2><p>Laboratory preferences and system roadmap</p></div>
         </div>
         <div class="card">
-          <div class="coming-soon">
-            <div class="coming-soon-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
+          <div style="padding:30px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+              <span class="phase-badge" style="background:#dcfce7;color:#15803d;padding:6px 14px;border-radius:20px;font-weight:700;">✓ Phase 1 &amp; Phase 2 (70%) Active</span>
+              <span class="phase-badge" style="background:#fef9c3;color:#a16207;padding:6px 14px;border-radius:20px;font-weight:700;">⚙ Phase 3 (100% Roadmap)</span>
             </div>
-            <h3>Settings &amp; Configuration</h3>
-            <p>User management, system preferences, notification settings, and role-based access control will be developed in a future phase.</p>
-            <span class="phase-badge">⚙ Phase 3 — Coming Soon</span>
+            <h3 style="color:var(--clr-text-900);margin-bottom:8px;">Laboratory Settings &amp; Roadmap</h3>
+            <p class="text-muted" style="margin-bottom:20px;">Your Lab Inventory Management System currently includes full Equipment Records, Stock Management, Issue &amp; Return with Overdue tracking, Maintenance Monitoring, and Complete Reports with CSV/Print Export.</p>
+
+            <div class="spec-grid">
+              <div class="spec-box">
+                <div class="spec-title">Database Engine</div>
+                <div class="spec-val">MySQL (InnoDB, utf8mb4)</div>
+              </div>
+              <div class="spec-box">
+                <div class="spec-title">Backend Architecture</div>
+                <div class="spec-val">PHP 8 RESTful APIs</div>
+              </div>
+              <div class="spec-box">
+                <div class="spec-title">Active Laboratory</div>
+                <div class="spec-val">Central Engineering Lab</div>
+              </div>
+              <div class="spec-box">
+                <div class="spec-title">Next Update (Phase 3)</div>
+                <div class="spec-val">Auth, QR Codes, Email Reminders</div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </section><!-- /#section-settings -->
 
     </main><!-- /.page-content -->
   </div><!-- /.main-content -->
@@ -547,66 +895,457 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-header">
       <h3 id="modalTitle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Add New Inventory Item
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add New Equipment Record
       </h3>
       <button class="modal-close" onclick="closeAddModal()" aria-label="Close modal">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
 
     <form id="addItemForm" onsubmit="submitAddItem(event)" novalidate>
       <div class="modal-body">
 
-        <div class="form-group">
-          <label class="form-label" for="inputItemName">Item Name <span>*</span></label>
-          <input type="text" id="inputItemName" class="form-input"
-                 placeholder="e.g. Digital Multimeter" maxlength="150" required />
-          <div class="form-error-msg" id="errItemName">Please enter an item name.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="inputItemName">Equipment Name <span>*</span></label>
+            <input type="text" id="inputItemName" class="form-input" placeholder="e.g. Digital Storage Oscilloscope" maxlength="150" required />
+            <div class="form-error-msg" id="errItemName">Please enter an item name.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputItemCode">Equipment Code / Tag</label>
+            <input type="text" id="inputItemCode" class="form-input" placeholder="e.g. EQ-EL-012 (auto if blank)" maxlength="50" />
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="inputCategory">Category <span>*</span></label>
-          <select id="inputCategory" class="form-select" required>
-            <option value="">— Select a category —</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Glassware">Glassware</option>
-            <option value="Chemicals">Chemicals</option>
-            <option value="Tools">Tools</option>
-            <option value="Other">Other</option>
-          </select>
-          <div class="form-error-msg" id="errCategory">Please select a category.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="inputModelNo">Model / Serial No.</label>
+            <input type="text" id="inputModelNo" class="form-input" placeholder="e.g. Tektronix TBS1052B" maxlength="100" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputCategory">Category <span>*</span></label>
+            <select id="inputCategory" class="form-select" required>
+              <option value="">— Select Category —</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Glassware">Glassware</option>
+              <option value="Chemicals">Chemicals</option>
+              <option value="Tools">Tools</option>
+              <option value="Other">Other</option>
+            </select>
+            <div class="form-error-msg" id="errCategory">Please select a category.</div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="inputQty">Total Quantity <span>*</span></label>
-          <input type="number" id="inputQty" class="form-input"
-                 placeholder="e.g. 20" min="1" max="9999" required />
-          <div class="form-error-msg" id="errQty">Please enter a valid quantity (1–9999).</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="inputLocation">Storage Location</label>
+            <input type="text" id="inputLocation" class="form-input" placeholder="e.g. Room 201 - Rack B3" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputUnit">Unit of Measurement</label>
+            <input type="text" id="inputUnit" class="form-input" placeholder="e.g. Units, Pieces, Sets, Bottles" value="Units" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="inputQty">Total Quantity <span>*</span></label>
+            <input type="number" id="inputQty" class="form-input" placeholder="e.g. 10" min="1" max="9999" required />
+            <div class="form-error-msg" id="errQty">Enter quantity (1–9999).</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputCondition">Condition</label>
+            <select id="inputCondition" class="form-select">
+              <option value="New">New</option>
+              <option value="Good" selected>Good</option>
+              <option value="Fair">Fair</option>
+              <option value="Needs Maintenance">Needs Maintenance</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputMinThreshold">Reorder Threshold</label>
+            <input type="number" id="inputMinThreshold" class="form-input" value="3" min="1" />
+          </div>
         </div>
 
       </div><!-- /.modal-body -->
 
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" onclick="closeAddModal()">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="addSubmitBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Add Item
-        </button>
+        <button type="submit" class="btn btn-primary" id="addSubmitBtn">Add Equipment</button>
       </div>
     </form>
-
   </div>
 </div><!-- /#addModal -->
+
+
+<!-- ════════ EDIT ITEM MODAL ════════ -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Equipment Record
+      </h3>
+      <button class="modal-close" onclick="closeEditModal()">&times;</button>
+    </div>
+    <form id="editItemForm" onsubmit="submitEditItem(event)">
+      <input type="hidden" id="editItemId" />
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Equipment Name <span>*</span></label>
+            <input type="text" id="editItemName" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Equipment Code</label>
+            <input type="text" id="editItemCode" class="form-input" required />
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Model / Serial No.</label>
+            <input type="text" id="editModelNo" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category <span>*</span></label>
+            <select id="editCategory" class="form-select" required>
+              <option value="Electronics">Electronics</option>
+              <option value="Glassware">Glassware</option>
+              <option value="Chemicals">Chemicals</option>
+              <option value="Tools">Tools</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input type="text" id="editLocation" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit</label>
+            <input type="text" id="editUnit" class="form-input" />
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Total Qty</label>
+            <input type="number" id="editTotalQty" class="form-input" min="1" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Condition</label>
+            <select id="editCondition" class="form-select">
+              <option value="New">New</option>
+              <option value="Good">Good</option>
+              <option value="Fair">Fair</option>
+              <option value="Needs Maintenance">Needs Maintenance</option>
+              <option value="Under Repair">Under Repair</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Threshold</label>
+            <input type="number" id="editMinThreshold" class="form-input" min="1" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="editSubmitBtn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div><!-- /#editModal -->
+
+
+<!-- ════════ QUICK RESTOCK MODAL ════════ -->
+<div class="modal-overlay" id="restockModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Restock Equipment Stock
+      </h3>
+      <button class="modal-close" onclick="closeRestockModal()">&times;</button>
+    </div>
+    <form id="restockForm" onsubmit="submitRestock(event)">
+      <input type="hidden" id="restockItemId" />
+      <div class="modal-body">
+        <p style="margin-bottom:12px;color:var(--clr-text-700);">Adding stock units for: <strong id="restockItemName" style="color:var(--clr-green-800);"></strong></p>
+        <div class="form-group">
+          <label class="form-label">Units to Add <span>*</span></label>
+          <input type="number" id="restockAddQty" class="form-input" min="1" max="5000" placeholder="e.g. 10" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Invoice / Supplier / Notes</label>
+          <input type="text" id="restockNotes" class="form-input" placeholder="e.g. PO-8921 / Lab Dept Purchase" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeRestockModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold" id="restockSubmitBtn">Add Stock</button>
+      </div>
+    </form>
+  </div>
+</div><!-- /#restockModal -->
+
+
+<!-- ════════ VIEW EQUIPMENT DETAILS MODAL ════════ -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:620px;">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Equipment Specification Sheet
+      </h3>
+      <button class="modal-close" onclick="closeViewModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="viewModalBody">
+      <!-- Injected via JS -->
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" onclick="closeViewModal()">Close</button>
+    </div>
+  </div>
+</div><!-- /#viewModal -->
+
+
+<!-- ════════ ISSUE EQUIPMENT MODAL ════════ -->
+<div class="modal-overlay" id="issueModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        Issue Equipment to Borrower
+      </h3>
+      <button class="modal-close" onclick="closeIssueModal()">&times;</button>
+    </div>
+    <form id="issueForm" onsubmit="submitIssueForm(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="issueItemSelect">Select Equipment Item <span>*</span></label>
+          <select id="issueItemSelect" class="form-select" onchange="onIssueItemChange()" required>
+            <option value="">— Select Equipment —</option>
+          </select>
+          <div id="issueAvailHint" style="font-size:.75rem;color:var(--clr-text-500);margin-top:4px;"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="issueBorrowerName">Borrower Name <span>*</span></label>
+            <input type="text" id="issueBorrowerName" class="form-input" placeholder="e.g. Aarav Patel" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="issueBorrowerId">Student / Faculty ID <span>*</span></label>
+            <input type="text" id="issueBorrowerId" class="form-input" placeholder="e.g. STU-2024-042" required />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="issueBorrowerDept">Department / Group</label>
+            <input type="text" id="issueBorrowerDept" class="form-input" placeholder="e.g. Electronics &amp; Comm." value="Engineering" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="issueQty">Quantity to Issue <span>*</span></label>
+            <input type="number" id="issueQty" class="form-input" min="1" value="1" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="issueDueDate">Expected Return Date (Due Date) <span>*</span></label>
+          <input type="date" id="issueDueDate" class="form-input" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="issueRemarks">Purpose / Session Notes</label>
+          <input type="text" id="issueRemarks" class="form-input" placeholder="e.g. Semester 4 DSP Lab practicals" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeIssueModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="issueSubmitBtn">Issue Equipment</button>
+      </div>
+    </form>
+  </div>
+</div><!-- /#issueModal -->
+
+
+<!-- ════════ RETURN EQUIPMENT MODAL ════════ -->
+<div class="modal-overlay" id="returnModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Return Equipment to Lab Stock
+      </h3>
+      <button class="modal-close" onclick="closeReturnModal()">&times;</button>
+    </div>
+    <form id="returnForm" onsubmit="submitReturnForm(event)">
+      <input type="hidden" id="returnIssueId" />
+      <div class="modal-body">
+        <div style="background:#f8fafc;padding:12px 16px;border-radius:var(--radius-sm);margin-bottom:14px;border:1px solid var(--clr-border);">
+          <div style="font-weight:700;font-size:.9rem;color:var(--clr-text-900);" id="returnModalItemName">Item Name</div>
+          <div style="font-size:.78rem;color:var(--clr-text-500);margin-top:2px;">
+            Borrower: <strong id="returnModalBorrower"></strong> &bull; Qty: <strong id="returnModalQty"></strong>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="returnConditionSelect">Equipment Condition on Return <span>*</span></label>
+          <select id="returnConditionSelect" class="form-select" required>
+            <option value="Good" selected>Good (Ready for circulation)</option>
+            <option value="Fair">Fair (Operational with minor wear)</option>
+            <option value="Needs Repair">Needs Repair (Flag for maintenance)</option>
+            <option value="Damaged">Damaged (Faulty/Unusable)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="returnRemarksInput">Return Notes / Inspection Remarks</label>
+          <input type="text" id="returnRemarksInput" class="form-input" placeholder="e.g. Checked by Lab Assistant, all parts accounted for" value="Returned in order" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeReturnModal()">Cancel</button>
+        <button type="submit" class="btn btn-return" id="returnSubmitBtn">Confirm Return</button>
+      </div>
+    </form>
+  </div>
+</div><!-- /#returnModal -->
+
+
+<!-- ════════ LOG MAINTENANCE MODAL ════════ -->
+<div class="modal-overlay" id="maintModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Schedule Equipment Maintenance
+      </h3>
+      <button class="modal-close" onclick="closeMaintModal()">&times;</button>
+    </div>
+    <form id="maintForm" onsubmit="submitMaintForm(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="maintItemSelect">Equipment Item <span>*</span></label>
+          <select id="maintItemSelect" class="form-select" required>
+            <option value="">— Select Equipment —</option>
+          </select>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="maintType">Maintenance Type <span>*</span></label>
+            <select id="maintType" class="form-select" required>
+              <option value="Routine Inspection">Routine Inspection</option>
+              <option value="Calibration">Calibration &amp; Certification</option>
+              <option value="Preventive Maintenance">Preventive Maintenance</option>
+              <option value="Repair" selected>Repair &amp; Overhaul</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="maintTech">Technician / Vendor <span>*</span></label>
+            <input type="text" id="maintTech" class="form-input" placeholder="e.g. Kiran Kumar (Lab Tech)" required />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="maintStartDate">Start Date <span>*</span></label>
+            <input type="date" id="maintStartDate" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="maintCost">Estimated Cost ($)</label>
+            <input type="number" step="0.01" id="maintCost" class="form-input" placeholder="0.00" value="0.00" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="maintStatus">Initial Status</label>
+          <select id="maintStatus" class="form-select">
+            <option value="In Progress" selected>In Progress (Sets item condition to Under Repair)</option>
+            <option value="Scheduled">Scheduled</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="maintNotes">Fault Description / Service Notes</label>
+          <textarea id="maintNotes" class="form-input" rows="2" placeholder="e.g. Gas valve replacement and safety pressure test"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeMaintModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold" id="maintSubmitBtn">Log Maintenance</button>
+      </div>
+    </form>
+  </div>
+</div><!-- /#maintModal -->
+
+
+<!-- ════════ COMPLETE MAINTENANCE MODAL ════════ -->
+<div class="modal-overlay" id="completeMaintModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Complete Maintenance Ticket
+      </h3>
+      <button class="modal-close" onclick="closeCompleteMaintModal()">&times;</button>
+    </div>
+    <form id="completeMaintForm" onsubmit="submitCompleteMaint(event)">
+      <input type="hidden" id="completeMaintId" />
+      <div class="modal-body">
+        <p style="margin-bottom:12px;color:var(--clr-text-700);">Completing maintenance for ticket #<strong id="completeMaintTicketNo"></strong></p>
+        <div class="form-group">
+          <label class="form-label" for="completeMaintDate">Completion Date <span>*</span></label>
+          <input type="date" id="completeMaintDate" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="completeMaintCost">Final Cost ($)</label>
+          <input type="number" step="0.01" id="completeMaintCost" class="form-input" placeholder="0.00" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="completeMaintNotes">Completion Notes / Certificate No.</label>
+          <input type="text" id="completeMaintNotes" class="form-input" placeholder="e.g. Tested and operational, returned to shelf" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeCompleteMaintModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="completeMaintBtn">Mark Completed</button>
+      </div>
+    </form>
+  </div>
+</div><!-- /#completeMaintModal -->
+
+
+<!-- ════════ DELETE CONFIRMATION MODAL ════════ -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:440px;">
+    <div class="modal-header">
+      <h3 style="color:#dc2626;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        Delete Equipment Record
+      </h3>
+      <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="deleteItemId" />
+      <p style="color:var(--clr-text-700);margin-bottom:8px;">Are you sure you want to permanently delete <strong id="deleteItemName" style="color:var(--clr-text-900);"></strong>?</p>
+      <p style="font-size:.78rem;color:#dc2626;">This action cannot be undone. Items with active borrowed units cannot be deleted.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="submitDeleteItem()">Delete Item</button>
+    </div>
+  </div>
+</div><!-- /#deleteModal -->
 
 
 <!-- ════════ TOAST NOTIFICATIONS ════════ -->

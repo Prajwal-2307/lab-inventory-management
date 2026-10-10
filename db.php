@@ -18,21 +18,11 @@ $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
 
 // ── Check for Connection Errors ───────────────────────────────────────────────
 if ($conn->connect_error) {
-    // Return JSON error if called via AJAX, otherwise show HTML error
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-        header('Content-Type: application/json');
-        echo json_encode([
-            'success' => false,
-            'message' => 'Database connection failed. Please ensure XAMPP MySQL is running.'
-        ]);
-    } else {
-        die('<div style="font-family:sans-serif;color:#c0392b;padding:20px;">
-              <strong>Database Error:</strong> Cannot connect to MySQL. 
-              Please start XAMPP and ensure the <em>lab_inventory</em> database exists.
-              <br><small>' . htmlspecialchars($conn->connect_error) . '</small>
-             </div>');
-    }
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database connection failed. Please ensure XAMPP MySQL is running and lab_inventory database exists: ' . $conn->connect_error
+    ]);
     exit;
 }
 

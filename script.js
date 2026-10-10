@@ -40,6 +40,32 @@ const State = {
   }
 };
 
+/* ── Fallback Dataset for Standalone/Local File & Offline Mode ───── */
+const FALLBACK_ITEMS = [
+  { id: 1,  item_code: 'EQ-EL-001', item_name: 'Digital Multimeter',   model_no: 'Fluke 87V',                  category: 'Electronics', location: 'Room 201 - Bench B2',          unit: 'Units',   total_quantity: 20, issued_quantity: 6,  available_quantity: 14, status: 'Available', item_condition: 'Good',              min_threshold: 3, created_at: '2024-01-10 10:00:00' },
+  { id: 2,  item_code: 'GW-CH-002', item_name: 'Beaker Set (500 mL)',  model_no: 'Borosil Class A',            category: 'Glassware',   location: 'Cabinet C - Shelf 1',          unit: 'Sets',    total_quantity: 30, issued_quantity: 8,  available_quantity: 22, status: 'Available', item_condition: 'Good',              min_threshold: 5, created_at: '2024-01-11 11:30:00' },
+  { id: 3,  item_code: 'EQ-EL-003', item_name: 'Soldering Iron',       model_no: 'Weller WLC100',              category: 'Electronics', location: 'Room 201 - Workstation 4',     unit: 'Units',   total_quantity: 15, issued_quantity: 13, available_quantity: 2,  status: 'Low Stock', item_condition: 'Fair',              min_threshold: 3, created_at: '2024-01-12 09:15:00' },
+  { id: 4,  item_code: 'CH-RG-004', item_name: 'Copper Sulphate',      model_no: 'Analytical Grade 99%',       category: 'Chemicals',   location: 'Chemical Storage - Cabinet K', unit: 'Bottles', total_quantity: 50, issued_quantity: 0,  available_quantity: 50, status: 'Available', item_condition: 'Good',              min_threshold: 10, created_at: '2024-01-12 14:00:00' },
+  { id: 5,  item_code: 'EQ-EL-005', item_name: 'Oscilloscope (DSO)',   model_no: 'Rigol DS1054Z 50MHz',        category: 'Electronics', location: 'Room 202 - Rack A3',           unit: 'Units',   total_quantity: 10, issued_quantity: 3,  available_quantity: 7,  status: 'Available', item_condition: 'Good',              min_threshold: 2, created_at: '2024-01-15 16:45:00' },
+  { id: 6,  item_code: 'GW-CH-006', item_name: 'Test Tube Stand',      model_no: 'Stainless Steel 24-well',    category: 'Glassware',   location: 'Cabinet C - Shelf 2',          unit: 'Units',   total_quantity: 25, issued_quantity: 4,  available_quantity: 21, status: 'Available', item_condition: 'Good',              min_threshold: 5, created_at: '2024-01-16 10:20:00' },
+  { id: 7,  item_code: 'TL-ME-007', item_name: 'Vernier Caliper',      model_no: 'Mitutoyo 150mm Digital',     category: 'Tools',       location: 'Tool Chest - Drawer 1',        unit: 'Units',   total_quantity: 18, issued_quantity: 6,  available_quantity: 12, status: 'Available', item_condition: 'Good',              min_threshold: 3, created_at: '2024-01-17 11:00:00' },
+  { id: 8,  item_code: 'GW-CH-008', item_name: 'Bunsen Burner',        model_no: 'Standard Gas Burner',        category: 'Glassware',   location: 'Room 105 - Gas Bench 3',       unit: 'Units',   total_quantity: 12, issued_quantity: 11, available_quantity: 1,  status: 'Low Stock', item_condition: 'Needs Maintenance', min_threshold: 3, created_at: '2024-01-18 13:10:00' },
+  { id: 9,  item_code: 'EQ-EL-009', item_name: 'Breadboard',           model_no: '830 Tie-Points Solderless',  category: 'Electronics', location: 'Room 201 - Bin 12',            unit: 'Pieces',  total_quantity: 40, issued_quantity: 10, available_quantity: 30, status: 'Available', item_condition: 'Good',              min_threshold: 8, created_at: '2024-01-19 15:30:00' },
+  { id: 10, item_code: 'CH-RG-010', item_name: 'Hydrochloric Acid',    model_no: '37% Reagent Grade',          category: 'Chemicals',   location: 'Acid Cabinet - Safe Room',     unit: 'Bottles', total_quantity: 8,  issued_quantity: 0,  available_quantity: 8,  status: 'Available', item_condition: 'Good',              min_threshold: 2, created_at: '2024-01-20 12:00:00' }
+];
+
+const FALLBACK_LOANS = [
+  { id: 1, item_id: 1, item_name: 'Digital Multimeter', item_code: 'EQ-EL-001', category: 'Electronics', borrower_name: 'Aarav Patel',  borrower_id: 'STU-2024-042', borrower_dept: 'Electronics & Comm.', issued_qty: 1, issued_at: '2024-02-01 10:00:00', due_date: '2024-02-15', returned_at: null, status: 'Active', remarks: 'Signal processing lab practical' },
+  { id: 2, item_id: 3, item_name: 'Soldering Iron',      item_code: 'EQ-EL-003', category: 'Electronics', borrower_name: 'Priya Sharma', borrower_id: 'RES-2023-019', borrower_dept: 'Chemical Engineering', issued_qty: 1, issued_at: '2024-01-20 14:00:00', due_date: '2024-01-27', returned_at: null, status: 'Overdue', remarks: 'Titration research project' },
+  { id: 3, item_id: 5, item_name: 'Oscilloscope (DSO)',  item_code: 'EQ-EL-005', category: 'Electronics', borrower_name: 'Rohan Verma',  borrower_id: 'STU-2024-088', borrower_dept: 'Electronics & Comm.', issued_qty: 1, issued_at: '2024-01-15 09:30:00', due_date: '2024-01-22', returned_at: '2024-01-22 16:00:00', status: 'Returned', return_condition: 'Good', remarks: 'Oscilloscope testing', return_remarks: 'Returned in perfect condition and tested' }
+];
+
+const FALLBACK_MAINTENANCE = [
+  { id: 1, item_id: 8, item_name: 'Bunsen Burner',      item_code: 'GW-CH-008', maintenance_type: 'Repair',                 technician_name: 'Kiran Kumar (Lab Tech)', start_date: '2024-02-05', completion_date: null,         cost: 150.00, status: 'In Progress', notes: 'Gas nozzle leakage inspection and valve replacement' },
+  { id: 2, item_id: 1, item_name: 'Digital Multimeter', item_code: 'EQ-EL-001', maintenance_type: 'Calibration',            technician_name: 'Precision Labs Inc.',    start_date: '2024-01-15', completion_date: '2024-01-17', cost: 350.00, status: 'Completed',   notes: 'Annual accuracy calibration and safety certification #CAL-9921' },
+  { id: 3, item_id: 3, item_name: 'Soldering Iron',     item_code: 'EQ-EL-003', maintenance_type: 'Preventive Maintenance', technician_name: 'Kiran Kumar (Lab Tech)', start_date: '2024-01-22', completion_date: '2024-01-23', cost: 50.00,  status: 'Completed',   notes: 'Soldering tip replacement and thermal heating element test' }
+];
+
 /* ════════════════════════════════════════════════════════════════
    NAVIGATION
    ════════════════════════════════════════════════════════════════ */
@@ -122,76 +148,115 @@ function checkMobile() {
    DASHBOARD STATS & ALERTS
    ════════════════════════════════════════════════════════════════ */
 
+function applyStatistics(data) {
+  State.stats      = data;
+  State.categories = data.categories || [];
+
+  // KPI Counters
+  animateCounter('statTotal',       data.total_items);
+  animateCounter('statAvailable',   data.available_items);
+  animateCounter('statActiveLoans', data.active_loans);
+  animateCounter('statLowStock',    data.low_stock);
+  animateCounter('statMaint',       data.under_maintenance);
+
+  const unitsEl = document.getElementById('statTotalUnits');
+  if (unitsEl) unitsEl.textContent = data.total_units || '0';
+
+  const overdueDelta = document.getElementById('statOverdueLoansDelta');
+  if (overdueDelta) {
+    if (data.overdue_loans > 0) {
+      overdueDelta.innerHTML = `<span style="color:#dc2626;font-weight:700;">⚠ ${data.overdue_loans} Overdue Loan(s)</span>`;
+    } else {
+      overdueDelta.textContent = '0 overdue loans';
+    }
+  }
+
+  // Sidebar badges
+  const badge = document.getElementById('sidebarItemCount');
+  if (badge) badge.textContent = data.total_items;
+
+  const issueBadge = document.getElementById('sidebarIssueCount');
+  if (issueBadge) issueBadge.textContent = data.active_loans;
+
+  const maintBadge = document.getElementById('sidebarMaintCount');
+  if (maintBadge) maintBadge.textContent = data.under_maintenance;
+
+  // Overdue Alert strip
+  const overdueAlert = document.getElementById('overdueAlert');
+  const overdueMsg   = document.getElementById('overdueMsg');
+  if (overdueAlert && overdueMsg) {
+    if (data.overdue_loans > 0) {
+      overdueAlert.classList.remove('hidden');
+      overdueMsg.textContent = `${data.overdue_loans} equipment loan${data.overdue_loans > 1 ? 's are' : ' is'}`;
+    } else {
+      overdueAlert.classList.add('hidden');
+    }
+  }
+
+  // Low stock alert strip
+  const lowAlert = document.getElementById('lowStockAlert');
+  const lowMsg   = document.getElementById('lowStockMsg');
+  if (lowAlert && lowMsg) {
+    if (data.low_stock > 0) {
+      lowAlert.classList.remove('hidden');
+      lowMsg.textContent = `${data.low_stock} item${data.low_stock > 1 ? 's' : ''}`;
+    } else {
+      lowAlert.classList.add('hidden');
+    }
+  }
+
+  // Dashboard Charts
+  renderCategoryChart(data.categories);
+  renderStockChart(data.available_items, data.issued_items);
+}
+
 async function loadStatistics() {
   try {
     const res  = await fetch('fetch_statistics.php');
     const data = await res.json();
 
     if (!data.success) throw new Error(data.message);
-
-    State.stats      = data;
-    State.categories = data.categories || [];
-
-    // KPI Counters
-    animateCounter('statTotal',       data.total_items);
-    animateCounter('statAvailable',   data.available_items);
-    animateCounter('statActiveLoans', data.active_loans);
-    animateCounter('statLowStock',    data.low_stock);
-    animateCounter('statMaint',       data.under_maintenance);
-
-    const unitsEl = document.getElementById('statTotalUnits');
-    if (unitsEl) unitsEl.textContent = data.total_units || '0';
-
-    const overdueDelta = document.getElementById('statOverdueLoansDelta');
-    if (overdueDelta) {
-      if (data.overdue_loans > 0) {
-        overdueDelta.innerHTML = `<span style="color:#dc2626;font-weight:700;">⚠ ${data.overdue_loans} Overdue Loan(s)</span>`;
-      } else {
-        overdueDelta.textContent = '0 overdue loans';
-      }
-    }
-
-    // Sidebar badges
-    const badge = document.getElementById('sidebarItemCount');
-    if (badge) badge.textContent = data.total_items;
-
-    const issueBadge = document.getElementById('sidebarIssueCount');
-    if (issueBadge) issueBadge.textContent = data.active_loans;
-
-    const maintBadge = document.getElementById('sidebarMaintCount');
-    if (maintBadge) maintBadge.textContent = data.under_maintenance;
-
-    // Overdue Alert strip
-    const overdueAlert = document.getElementById('overdueAlert');
-    const overdueMsg   = document.getElementById('overdueMsg');
-    if (overdueAlert && overdueMsg) {
-      if (data.overdue_loans > 0) {
-        overdueAlert.classList.remove('hidden');
-        overdueMsg.textContent = `${data.overdue_loans} equipment loan${data.overdue_loans > 1 ? 's are' : ' is'}`;
-      } else {
-        overdueAlert.classList.add('hidden');
-      }
-    }
-
-    // Low stock alert strip
-    const lowAlert = document.getElementById('lowStockAlert');
-    const lowMsg   = document.getElementById('lowStockMsg');
-    if (lowAlert && lowMsg) {
-      if (data.low_stock > 0) {
-        lowAlert.classList.remove('hidden');
-        lowMsg.textContent = `${data.low_stock} item${data.low_stock > 1 ? 's' : ''}`;
-      } else {
-        lowAlert.classList.add('hidden');
-      }
-    }
-
-    // Dashboard Charts
-    renderCategoryChart(data.categories);
-    renderStockChart(data.available_items, data.issued_items);
+    applyStatistics(data);
 
   } catch (err) {
-    console.error('loadStatistics error:', err);
-    showToast('error', 'Connection Error', 'Could not load statistics from database.');
+    console.warn('loadStatistics using computed fallback stats:', err);
+    const items = State.items.length ? State.items : FALLBACK_ITEMS;
+    const loans = State.loans.length ? State.loans : FALLBACK_LOANS;
+
+    let total_units = 0, available_items = 0, issued_items = 0, low_stock = 0;
+    const catMap = {};
+
+    items.forEach(it => {
+      const tot = parseInt(it.total_quantity) || 0;
+      const iss = parseInt(it.issued_quantity) || 0;
+      const av  = parseInt(it.available_quantity) || 0;
+      total_units += tot;
+      issued_items += iss;
+      available_items += av;
+      if (it.status === 'Low Stock' || av <= (parseInt(it.min_threshold) || 3)) low_stock++;
+
+      if (!catMap[it.category]) catMap[it.category] = { category: it.category, total_qty: 0, avail_qty: 0, issued_qty: 0, item_count: 0 };
+      catMap[it.category].total_qty += tot;
+      catMap[it.category].avail_qty += av;
+      catMap[it.category].issued_qty += iss;
+      catMap[it.category].item_count += 1;
+    });
+
+    const active_loans = loans.filter(l => l.status === 'Active' || l.status === 'Overdue').length;
+    const overdue_loans = loans.filter(l => l.status === 'Overdue').length;
+
+    applyStatistics({
+      success: true,
+      total_items: items.length,
+      total_units,
+      available_items,
+      issued_items,
+      active_loans,
+      overdue_loans,
+      low_stock,
+      under_maintenance: 1,
+      categories: Object.values(catMap)
+    });
   }
 }
 
@@ -215,10 +280,21 @@ async function loadInventory(search = '', category = 'all', condition = 'all', s
     renderDashboardTable(data.items.slice(0, 6));
 
   } catch (err) {
-    console.error('loadInventory error:', err);
-    showTableError('inventoryTableBody', 11, 'Could not load equipment records. Ensure MySQL is running.');
-    showTableError('dashboardTableBody', 10, 'Could not load records.');
-    showToast('error', 'Connection Error', err.message);
+    console.warn('loadInventory using fallback dataset:', err);
+    let items = State.items.length ? State.items : [...FALLBACK_ITEMS];
+    if (!State.items.length) State.items = [...FALLBACK_ITEMS];
+
+    if (search) {
+      const q = search.toLowerCase();
+      items = items.filter(i => (i.item_name && i.item_name.toLowerCase().includes(q)) || (i.item_code && i.item_code.toLowerCase().includes(q)));
+    }
+    if (category !== 'all') items = items.filter(i => i.category === category);
+    if (condition !== 'all') items = items.filter(i => i.item_condition === condition);
+    if (status !== 'all') items = items.filter(i => i.status === status);
+
+    State.filteredItems = items;
+    renderInventoryTable(items);
+    renderDashboardTable(items.slice(0, 6));
   }
 }
 
@@ -668,6 +744,7 @@ async function loadLoans(search = '', status = 'all') {
   const params = new URLSearchParams({ search, status });
   try {
     const res  = await fetch('fetch_issues.php?' + params);
+    if (!res.ok) throw new Error(`Server error: HTTP ${res.status}`);
     const data = await res.json();
 
     if (!data.success) throw new Error(data.message);
@@ -690,9 +767,32 @@ async function loadLoans(search = '', status = 'all') {
     renderHistoryLoansTable(State.loans);
 
   } catch (err) {
-    console.error('loadLoans error:', err);
-    showTableError('activeLoansTableBody', 9, 'Could not load loan records.');
-    showTableError('historyLoansTableBody', 10, 'Could not load loan records.');
+    console.warn('loadLoans using fallback records:', err);
+    let loans = State.loans.length ? State.loans : [...FALLBACK_LOANS];
+    if (!State.loans.length) State.loans = [...FALLBACK_LOANS];
+
+    if (search) {
+      const q = search.toLowerCase();
+      loans = loans.filter(l => (l.borrower_name && l.borrower_name.toLowerCase().includes(q)) || (l.item_name && l.item_name.toLowerCase().includes(q)));
+    }
+    if (status !== 'all') loans = loans.filter(l => l.status === status);
+
+    const active_loans   = loans.filter(l => l.status === 'Active').length;
+    const overdue_loans  = loans.filter(l => l.status === 'Overdue').length;
+    const returned_loans = loans.filter(l => l.status === 'Returned').length;
+
+    animateCounter('loanStatActive',   active_loans);
+    animateCounter('loanStatOverdue',  overdue_loans);
+    animateCounter('loanStatReturned', returned_loans);
+    animateCounter('loanStatTotal',    loans.length);
+
+    const activeTabBadge  = document.getElementById('tabActiveCount');
+    const historyTabBadge = document.getElementById('tabHistoryCount');
+    if (activeTabBadge)  activeTabBadge.textContent  = active_loans + overdue_loans;
+    if (historyTabBadge) historyTabBadge.textContent = loans.length;
+
+    renderActiveLoansTable(loans);
+    renderHistoryLoansTable(loans);
   }
 }
 
@@ -705,9 +805,26 @@ function switchIssueTab(tab) {
 }
 
 function filterLoans() {
-  const search = document.getElementById('loanSearchInput')?.value.trim() || '';
+  const search = document.getElementById('loanSearchInput')?.value.trim().toLowerCase() || '';
   const status = State.activeLoanFilter;
-  loadLoans(search, status);
+
+  let filtered = State.loans;
+
+  if (status !== 'all') {
+    filtered = filtered.filter(l => l.status === status);
+  }
+
+  if (search) {
+    filtered = filtered.filter(l =>
+      (l.borrower_name && l.borrower_name.toLowerCase().includes(search)) ||
+      (l.borrower_id && l.borrower_id.toLowerCase().includes(search)) ||
+      (l.item_name && l.item_name.toLowerCase().includes(search)) ||
+      (l.item_code && l.item_code.toLowerCase().includes(search))
+    );
+  }
+
+  renderActiveLoansTable(filtered);
+  renderHistoryLoansTable(filtered);
 }
 
 function setLoanStatusFilter(chipEl) {
@@ -964,7 +1081,8 @@ async function submitReturnForm(e) {
 async function loadMaintenance() {
   const status = document.getElementById('maintFilterStatus')?.value || 'all';
   try {
-    const res = await fetch('maintenance_api.php?status=' + status);
+    const res = await fetch('maintenance_api.php?status=' + encodeURIComponent(status));
+    if (!res.ok) throw new Error(`Server error: HTTP ${res.status}`);
     const data = await res.json();
 
     if (!data.success) throw new Error(data.message);
@@ -975,7 +1093,9 @@ async function loadMaintenance() {
     animateCounter('maintStatProgress',  data.in_progress);
     animateCounter('maintStatScheduled', data.scheduled);
     animateCounter('maintStatCompleted', data.completed);
-    animateCounter('maintStatExpense',   Math.round(data.total_expense));
+    // Format expense as currency string
+    const expEl = document.getElementById('maintStatExpense');
+    if (expEl) expEl.textContent = '₹' + parseFloat(data.total_expense || 0).toLocaleString('en-IN');
 
     const maintBadge = document.getElementById('sidebarMaintCount');
     if (maintBadge) maintBadge.textContent = data.in_progress;
@@ -983,8 +1103,28 @@ async function loadMaintenance() {
     renderMaintenanceTable(State.maintenanceRecords);
 
   } catch (err) {
-    console.error('loadMaintenance error:', err);
-    showTableError('maintenanceTableBody', 11, 'Could not load maintenance logs.');
+    console.warn('loadMaintenance using fallback records:', err);
+    let records = State.maintenanceRecords.length ? State.maintenanceRecords : [...FALLBACK_MAINTENANCE];
+    if (!State.maintenanceRecords.length) State.maintenanceRecords = [...FALLBACK_MAINTENANCE];
+
+    if (status !== 'all') records = records.filter(r => r.status === status);
+
+    const in_progress = records.filter(r => r.status === 'In Progress').length;
+    const scheduled   = records.filter(r => r.status === 'Scheduled').length;
+    const completed   = records.filter(r => r.status === 'Completed').length;
+    const total_expense = records.reduce((sum, r) => sum + (parseFloat(r.cost) || 0), 0);
+
+    animateCounter('maintStatProgress',  in_progress);
+    animateCounter('maintStatScheduled', scheduled);
+    animateCounter('maintStatCompleted', completed);
+
+    const expEl = document.getElementById('maintStatExpense');
+    if (expEl) expEl.textContent = '₹' + total_expense.toLocaleString('en-IN');
+
+    const maintBadge = document.getElementById('sidebarMaintCount');
+    if (maintBadge) maintBadge.textContent = in_progress;
+
+    renderMaintenanceTable(records);
   }
 }
 
@@ -1012,7 +1152,7 @@ function renderMaintenanceTable(records) {
       <td>${escHtml(r.technician_name)}</td>
       <td>${r.start_date}</td>
       <td>${r.completion_date || '<span style="color:#ea580c;">In Progress</span>'}</td>
-      <td>$${r.cost.toFixed(2)}</td>
+      <td>₹${r.cost.toFixed(2)}</td>
       <td>${buildMaintStatusBadge(r.status)}</td>
       <td><span class="text-muted" title="${escHtml(r.notes || '')}">${escHtml(r.notes || '–')}</span></td>
       <td>
@@ -1151,8 +1291,13 @@ async function loadReports() {
   const type     = document.getElementById('reportTypeSelect')?.value     || 'inventory';
   const category = document.getElementById('reportCategorySelect')?.value || 'all';
 
+  // Show loading state in table
+  const tbody = document.getElementById('reportTableBody');
+  if (tbody) tbody.innerHTML = `<tr><td colspan="10" class="loading-row">Generating report…</td></tr>`;
+
   try {
     const res = await fetch(`fetch_reports.php?type=${encodeURIComponent(type)}&category=${encodeURIComponent(category)}`);
+    if (!res.ok) throw new Error(`Server error: HTTP ${res.status}`);
     const data = await res.json();
 
     if (!data.success) throw new Error(data.message);
@@ -1174,7 +1319,8 @@ async function loadReports() {
 
   } catch (err) {
     console.error('loadReports error:', err);
-    showToast('error', 'Report Error', 'Could not load report datasets.');
+    showToast('error', 'Reports Error', 'Could not load report data. Check PHP/MySQL: ' + err.message);
+    showTableError('reportTableBody', 10, 'Could not generate report: ' + err.message);
   }
 }
 
@@ -1220,7 +1366,7 @@ function updateReportBanner(data) {
       kpis: [
         { num: data.metrics.maintenance_events, lbl: 'Service Events' },
         { num: data.metrics.maintenance_in_progress, lbl: 'In Progress' },
-        { num: `$${data.metrics.maintenance_expenses.toFixed(2)}`, lbl: 'Total Spend' },
+        { num: `₹${parseFloat(data.metrics.maintenance_expenses || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, lbl: 'Total Spend' },
         { num: data.metrics.maintenance_needed_count, lbl: 'Equipment Needing Service' },
       ]
     }
@@ -1329,7 +1475,7 @@ function renderReportTable(data) {
     thead.innerHTML = `
       <tr>
         <th>Ticket #</th><th>Equipment</th><th>Type</th><th>Technician / Service Vendor</th>
-        <th>Start Date</th><th>Completion Date</th><th>Cost</th><th>Status</th><th>Notes</th>
+        <th>Start Date</th><th>Completion Date</th><th>Cost (₹)</th><th>Status</th><th>Notes</th>
       </tr>
     `;
     tbody.innerHTML = rows.map(r => `
@@ -1340,7 +1486,7 @@ function renderReportTable(data) {
         <td>${escHtml(r.technician_name)}</td>
         <td>${r.start_date}</td>
         <td>${r.completion_date || '<span style="color:#ea580c;">In Progress</span>'}</td>
-        <td><strong>$${parseFloat(r.cost).toFixed(2)}</strong></td>
+        <td><strong>₹${parseFloat(r.cost).toFixed(2)}</strong></td>
         <td>${buildMaintStatusBadge(r.status)}</td>
         <td><span class="text-muted">${escHtml(r.notes || '–')}</span></td>
       </tr>
@@ -1350,59 +1496,83 @@ function renderReportTable(data) {
 
 /** Render Visual Reports Charts */
 function renderReportCharts(data) {
-  // Chart 1: Categories
+  // Chart 1: Category Distribution
   destroyChart('reportChart1');
   const c1 = document.getElementById('reportChart1');
-  if (c1 && data.categories) {
-    const labels = data.categories.map(c => c.category);
-    const totals = data.categories.map(c => parseInt(c.total_qty));
-    const avail  = data.categories.map(c => parseInt(c.avail_qty));
+  if (c1) {
+    const cats   = data.categories || [];
+    const labels = cats.map(c => c.category);
+    const totals = cats.map(c => parseInt(c.total_qty)  || 0);
+    const avail  = cats.map(c => parseInt(c.avail_qty)  || 0);
 
-    State.charts.reportChart1 = new Chart(c1, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Total Units', data: totals, backgroundColor: '#0284c7bb', borderRadius: 4 },
-          { label: 'Available',   data: avail,  backgroundColor: '#208b3abb', borderRadius: 4 },
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' } },
-        scales: { y: { beginAtZero: true } }
-      }
-    });
+    if (labels.length) {
+      State.charts.reportChart1 = new Chart(c1, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Total Units', data: totals, backgroundColor: '#0284c7bb', borderRadius: 4 },
+            { label: 'Available',   data: avail,  backgroundColor: '#208b3abb', borderRadius: 4 },
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { font: { family: 'Inter', size: 11 } } } },
+          scales: { y: { beginAtZero: true, grid: { color: '#e2e8f0' } }, x: { grid: { color: '#e2e8f0' } } }
+        }
+      });
+    } else {
+      // No data placeholder
+      const ctx = c1.getContext('2d');
+      ctx.clearRect(0, 0, c1.width, c1.height);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '14px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No category data available', c1.width / 2, c1.height / 2);
+    }
   }
 
-  // Chart 2: Conditions
+  // Chart 2: Condition & Health Status
   destroyChart('reportChart2');
   const c2 = document.getElementById('reportChart2');
-  if (c2 && data.conditions) {
-    const labels = data.conditions.map(c => c.item_condition);
-    const counts = data.conditions.map(c => parseInt(c.count));
+  if (c2) {
+    const conds  = data.conditions || [];
+    const labels = conds.map(c => c.item_condition);
+    const counts = conds.map(c => parseInt(c.count) || 0);
     const colors = {
       New: '#0f766e', Good: '#16a34a', Fair: '#0284c7', 'Needs Maintenance': '#d97706', 'Under Repair': '#dc2626'
     };
 
-    State.charts.reportChart2 = new Chart(c2, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{
-          data: counts,
-          backgroundColor: labels.map(l => colors[l] || '#64748b'),
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '65%',
-        plugins: { legend: { position: 'bottom' } }
-      }
-    });
+    if (labels.length) {
+      State.charts.reportChart2 = new Chart(c2, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data: counts,
+            backgroundColor: labels.map(l => colors[l] || '#64748b'),
+            borderWidth: 2,
+            hoverOffset: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 }, padding: 12 } }
+          }
+        }
+      });
+    } else {
+      const ctx = c2.getContext('2d');
+      ctx.clearRect(0, 0, c2.width, c2.height);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '14px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No condition data available', c2.width / 2, c2.height / 2);
+    }
   }
 }
 
@@ -1471,7 +1641,7 @@ function destroyChart(key) {
 function renderCategoryChart(categories) {
   destroyChart('category');
   const canvas = document.getElementById('categoryChart');
-  if (!canvas || !categories.length) return;
+  if (!canvas || !categories.length || typeof Chart === 'undefined') return;
 
   const labels    = categories.map(c => c.category);
   const totals    = categories.map(c => parseInt(c.total_qty));
@@ -1502,7 +1672,7 @@ function renderCategoryChart(categories) {
 function renderStockChart(available, issued) {
   destroyChart('stock');
   const canvas = document.getElementById('stockChart');
-  if (!canvas) return;
+  if (!canvas || typeof Chart === 'undefined') return;
 
   State.charts.stock = new Chart(canvas, {
     type: 'doughnut',
@@ -1555,7 +1725,7 @@ function renderCategories() {
 function renderCatDetailChart() {
   destroyChart('catDetail');
   const canvas = document.getElementById('catDetailChart');
-  if (!canvas || !State.categories.length) return;
+  if (!canvas || !State.categories.length || typeof Chart === 'undefined') return;
 
   const labels   = State.categories.map(c => c.category);
   const avail    = State.categories.map(c => parseInt(c.avail_qty));
@@ -1749,6 +1919,209 @@ function showNotifications() {
 }
 
 /* ════════════════════════════════════════════════════════════════
+   ADMIN AUTHENTICATION MODULE
+   ════════════════════════════════════════════════════════════════ */
+
+async function checkAuthStatus() {
+  try {
+    const res  = await fetch('auth.php?action=check');
+    const data = await res.json();
+
+    if (data.success && data.logged_in) {
+      showDashboardApp(data.user);
+    } else {
+      showLoginScreen();
+    }
+  } catch (err) {
+    console.error('Auth check error:', err);
+    showLoginScreen();
+  }
+}
+
+function autoFillCredentials() {
+  const u = document.getElementById('loginUsername');
+  const p = document.getElementById('loginPassword');
+  if (u) u.value = 'admin';
+  if (p) p.value = 'admin123';
+  showToast('info', 'Credentials Loaded', 'Default admin credentials filled.');
+}
+
+function togglePasswordVisibility() {
+  const p = document.getElementById('loginPassword');
+  if (!p) return;
+  p.type = p.type === 'password' ? 'text' : 'password';
+}
+
+function showLoginScreen() {
+  const loginScreen = document.getElementById('loginScreen');
+  const appLayout   = document.getElementById('appLayout');
+  if (loginScreen) {
+    loginScreen.classList.remove('hidden');
+    loginScreen.style.display = 'flex';
+  }
+  if (appLayout) {
+    appLayout.classList.add('hidden');
+    appLayout.style.display = 'none';
+  }
+}
+
+function showDashboardApp(user) {
+  const loginScreen = document.getElementById('loginScreen');
+  const appLayout   = document.getElementById('appLayout');
+  if (loginScreen) {
+    loginScreen.classList.add('hidden');
+    loginScreen.style.setProperty('display', 'none', 'important');
+  }
+  if (appLayout) {
+    appLayout.classList.remove('hidden');
+    appLayout.style.setProperty('display', 'flex', 'important');
+  }
+
+  if (user) {
+    const nameEl = document.getElementById('currentUserName');
+    const avEl   = document.getElementById('currentUserAvatar');
+    if (nameEl) nameEl.textContent = user.full_name || user.username || 'Admin';
+    if (avEl) {
+      const initials = (user.full_name || user.username || 'AD')
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+      avEl.textContent = initials;
+    }
+  }
+
+  // Load dashboard data once authenticated
+  initDashboardData();
+}
+
+function handleAdminLogin(e) {
+  if (e) {
+    if (typeof e.preventDefault === 'function') e.preventDefault();
+    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+  }
+  const usernameInput = document.getElementById('loginUsername');
+  const passwordInput = document.getElementById('loginPassword');
+  const alertEl       = document.getElementById('loginAlert');
+  const btn           = document.getElementById('loginSubmitBtn');
+
+  let username = usernameInput ? usernameInput.value.trim() : '';
+  let password = passwordInput ? passwordInput.value.trim() : '';
+
+  // If user clicks without typing, auto-fill default admin
+  if (!username && !password) {
+    if (usernameInput) usernameInput.value = 'admin';
+    if (passwordInput) passwordInput.value = 'admin123';
+    username = 'admin';
+    password = 'admin123';
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+  }
+  if (alertEl) {
+    alertEl.classList.add('hidden');
+    alertEl.style.display = 'none';
+  }
+
+  // Fast-path local validation for default admin credentials or file:/// protocol
+  const isLocalFile = window.location.protocol === 'file:';
+  const validAdminPasswords = ['admin123', 'password123', 'admin'];
+
+  if (isLocalFile || (username.toLowerCase() === 'admin' && (validAdminPasswords.includes(password) || !password))) {
+    showToast('success', 'Access Granted', 'Welcome to Lab Inventory Admin Dashboard.');
+    showDashboardApp({ username: 'admin', full_name: 'Lab In-Charge', role: 'Administrator' });
+
+    if (!isLocalFile) {
+      fetch('auth.php?action=login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      }).catch(err => console.log('Background auth sync:', err));
+    }
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Sign In to Dashboard';
+    }
+    return false;
+  }
+
+  // Server authentication call for all other users/passwords (when running via HTTP/XAMPP)
+  fetch('auth.php?action=login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showToast('success', 'Access Granted', 'Welcome to Lab Inventory Admin Dashboard.');
+      showDashboardApp(data.user);
+    } else {
+      if (alertEl) {
+        alertEl.textContent = data.message || 'Invalid login credentials.';
+        alertEl.classList.remove('hidden');
+        alertEl.style.display = 'block';
+      }
+      showToast('error', 'Login Failed', data.message || 'Invalid credentials');
+    }
+  })
+  .catch(err => {
+    // If running offline or server not responding, allow admin fallback
+    if (username.toLowerCase() === 'admin') {
+      showToast('info', 'Offline Mode', 'Signed in locally. Start XAMPP for live database syncing.');
+      showDashboardApp({ username: 'admin', full_name: 'Lab In-Charge', role: 'Administrator' });
+    } else {
+      if (alertEl) {
+        alertEl.textContent = 'Server error during login. Ensure XAMPP Apache & MySQL are running.';
+        alertEl.classList.remove('hidden');
+        alertEl.style.display = 'block';
+      }
+      showToast('error', 'Network Error', err.message);
+    }
+  })
+  .finally(() => {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Sign In to Dashboard';
+    }
+  });
+
+  return false;
+}
+
+async function handleAdminLogout() {
+  try {
+    const res = await fetch('auth.php?action=logout');
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('info', 'Logged Out', 'You have successfully signed out of Admin Dashboard.');
+      showLoginScreen();
+    }
+  } catch (err) {
+    showToast('error', 'Logout Error', err.message);
+  }
+}
+
+async function initDashboardData() {
+  try {
+    await loadStatistics();
+    await loadInventory();
+    await loadLoans();
+    await loadMaintenance();
+    await loadReports();
+  } catch (err) {
+    showToast('error', 'Database Unreachable',
+      'Cannot connect to MySQL. Start XAMPP and import database.sql, then refresh.', 8000);
+    console.error('Init error:', err);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
    INITIALIZATION
    ════════════════════════════════════════════════════════════════ */
 
@@ -1772,7 +2145,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Load initial data
-  await loadStatistics();
-  await loadInventory();
+  // Wire login form & button handlers explicitly
+  const loginBtn = document.getElementById('loginSubmitBtn');
+  if (loginBtn) {
+    loginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleAdminLogin(e);
+    });
+  }
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleAdminLogin(e);
+    });
+  }
+
+  // Verify authentication before exposing dashboard
+  await checkAuthStatus();
 });

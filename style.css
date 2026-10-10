@@ -39,7 +39,7 @@
   --clr-info:      #0284c7;
 
   /* Sidebar */
-  --sidebar-w:     260px;
+  --sidebar-w:     270px;
   --sidebar-w-sm:  72px;
 
   /* Shadows */
@@ -78,6 +78,11 @@ a { text-decoration: none; color: inherit; }
 ul { list-style: none; }
 button { cursor: pointer; font-family: inherit; border: none; outline: none; }
 input, select, textarea { font-family: inherit; }
+
+/* ── Utility: Hidden ────────────────────────────────────────────── */
+.hidden {
+  display: none !important;
+}
 
 /* ── Layout Wrapper ─────────────────────────────────────────────── */
 .layout {
@@ -169,10 +174,9 @@ input, select, textarea { font-family: inherit; }
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 12px 20px;
+  gap: 10px;
+  padding: 10px 14px;
   color: rgba(255,255,255,.65);
-  border-radius: 0;
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
   cursor: pointer;
   position: relative;
@@ -212,12 +216,13 @@ input, select, textarea { font-family: inherit; }
 .nav-item-text {
   font-size: .82rem;
   font-weight: 500;
-  overflow: hidden;
+  white-space: nowrap;
   transition: opacity var(--dur) var(--ease), width var(--dur) var(--ease);
 }
 
 .nav-badge {
   margin-left: auto;
+  flex-shrink: 0;
   background: var(--clr-gold-500);
   color: var(--clr-green-900);
   font-size: .6rem;
@@ -258,10 +263,16 @@ input, select, textarea { font-family: inherit; }
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  transition: margin-left var(--dur) var(--ease);
+  min-width: 0;
+  max-width: calc(100vw - var(--sidebar-w));
+  overflow-x: hidden;
+  transition: margin-left var(--dur) var(--ease), max-width var(--dur) var(--ease);
 }
 
-.main-content.sidebar-collapsed { margin-left: var(--sidebar-w-sm); }
+.main-content.sidebar-collapsed {
+  margin-left: var(--sidebar-w-sm);
+  max-width: calc(100vw - var(--sidebar-w-sm));
+}
 
 /* ── Top Header ─────────────────────────────────────────────────── */
 .topbar {
@@ -371,6 +382,8 @@ input, select, textarea { font-family: inherit; }
   padding: 28px;
   max-width: 1400px;
   width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* ── Section ─────────────────────────────────────────────────────── */
@@ -614,7 +627,22 @@ input, select, textarea { font-family: inherit; }
 }
 
 /* ── Tables ──────────────────────────────────────────────────────── */
-.table-responsive { overflow-x: auto; }
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
 
 table {
   width: 100%;
@@ -1266,6 +1294,17 @@ tbody td {
   display: block;
 }
 
+/* Stat card when no stat-icon present (Phase 2 sections) */
+.stat-card .stat-info:only-child {
+  padding: 2px 0;
+}
+
+/* Gap between tabs-header and filter-bar */
+.tabs-header + .filter-bar {
+  margin-top: 0;
+  border-top: none;
+}
+
 /* ── Circulation & Condition Badges ─────────────────────────────── */
 .badge-active   { background: #e0f2fe; color: #0369a1; }
 .badge-active .badge-dot { background: #0284c7; }
@@ -1591,5 +1630,217 @@ tbody td {
     color: #000 !important;
     background: #f1f5f9 !important;
   }
+}
+
+/* ── Admin Login Screen Overlay ─────────────────────────────────────── */
+.login-screen-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: linear-gradient(135deg, var(--clr-green-900) 0%, #061c10 50%, var(--clr-green-800) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.login-screen-overlay.hidden,
+#loginScreen.hidden {
+  display: none !important;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 25px 60px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.1);
+  padding: 38px 32px;
+  animation: slideUp .4s var(--ease);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-logo-icon {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, var(--clr-gold-400), var(--clr-gold-500));
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 20px rgba(201,168,76,.4);
+}
+
+.login-logo-icon svg {
+  width: 30px; height: 30px;
+  color: var(--clr-green-900);
+}
+
+.login-header h2 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--clr-green-900);
+  letter-spacing: -.3px;
+}
+
+.login-header p {
+  font-size: .83rem;
+  color: var(--clr-text-500);
+  margin-top: 4px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-field label {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--clr-text-700);
+}
+
+.input-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-wrap svg {
+  position: absolute;
+  left: 14px;
+  width: 18px; height: 18px;
+  color: var(--clr-text-300);
+  transition: color var(--dur) var(--ease);
+}
+
+.input-icon-wrap input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  font-size: .9rem;
+  color: var(--clr-text-900);
+  background: #f8fafc;
+  outline: none;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.input-icon-wrap input:focus {
+  border-color: var(--clr-green-500);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(32,139,58,.15);
+}
+
+.input-icon-wrap input:focus + svg,
+.input-icon-wrap input:focus ~ svg {
+  color: var(--clr-green-600);
+}
+
+.login-error-alert {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  font-size: .8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.login-error-alert.hidden {
+  display: none !important;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--clr-green-700), var(--clr-green-600));
+  color: #fff;
+  font-size: .92rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  box-shadow: 0 6px 18px rgba(21,93,42,.35);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(21,93,42,.45);
+}
+
+.login-footer {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--clr-border);
+  text-align: center;
+}
+
+.login-footer p {
+  font-size: .74rem;
+  color: var(--clr-text-500);
+}
+
+.login-footer code {
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--clr-green-800);
+  font-weight: 700;
+}
+
+/* Logout Button in Topbar User Chip */
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 6px;
+  padding: 4px 10px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 20px;
+  font-size: .7rem;
+  font-weight: 700;
+  transition: background var(--dur) var(--ease);
+}
+
+.logout-btn:hover {
+  background: #fca5a5;
+  color: #7f1d1d;
+}
+
+.logout-btn svg {
+  width: 13px; height: 13px;
+}
+
+.nav-logout-item {
+  margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 14px;
+}
+
+.nav-logout-item:hover {
+  background: rgba(220,38,38,.15) !important;
 }
 

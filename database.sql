@@ -152,3 +152,22 @@ BEGIN
   END IF;
 END$$
 DELIMITER ;
+
+-- ============================================================
+-- Table: users (Admin & Staff Authentication)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `users` (
+  `id`         INT(11)      NOT NULL AUTO_INCREMENT,
+  `username`   VARCHAR(50)  NOT NULL UNIQUE,
+  `password`   VARCHAR(255) NOT NULL,
+  `full_name`  VARCHAR(100) NOT NULL,
+  `role`       VARCHAR(50)  NOT NULL DEFAULT 'Administrator',
+  `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Default Admin User (username: admin, password: admin123)
+INSERT INTO `users` (`username`, `password`, `full_name`, `role`)
+VALUES ('admin', '$2y$10$FIaIwAiqrEZFbNYXosWZZ.A08HSxHxOBR.ywYmbtGM7AQsuNHlUme', 'Lab In-Charge', 'Administrator')
+ON DUPLICATE KEY UPDATE `password` = VALUES(`password`), `full_name` = VALUES(`full_name`);
+

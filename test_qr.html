@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab Inventory – QR Code Asset Tag Testing Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --clr-primary: #15803d;
+      --clr-bg: #f8fafc;
+      --clr-card: #ffffff;
+      --clr-border: #e2e8f0;
+      --clr-text: #0f172a;
+      --clr-muted: #64748b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--clr-bg);
+      color: var(--clr-text);
+      padding: 30px 20px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .header {
+      background: var(--clr-card);
+      border: 1px solid var(--clr-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .header h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .header p {
+      font-size: 0.85rem;
+      color: var(--clr-muted);
+      margin-top: 4px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--clr-primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #166534;
+    }
+    .btn-outline {
+      background: #fff;
+      border-color: var(--clr-border);
+      color: var(--clr-text);
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+    .instructions-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      font-size: 0.88rem;
+      color: #1e40af;
+    }
+    .instructions-card ol {
+      margin-left: 20px;
+      margin-top: 6px;
+    }
+    .instructions-card li {
+      margin-bottom: 4px;
+    }
+
+    /* Grid of QR Cards */
+    .qr-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .qr-card {
+      background: #fff;
+      border: 2px dashed #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      position: relative;
+    }
+    .qr-img-box {
+      width: 110px;
+      height: 110px;
+      background: #ffffff;
+      padding: 6px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .qr-img-box img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .qr-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .qr-badge {
+      display: inline-block;
+      font-family: monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    .qr-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .qr-model {
+      font-size: 0.78rem;
+      color: var(--clr-muted);
+      margin-bottom: 4px;
+    }
+    .qr-loc {
+      font-size: 0.75rem;
+      color: #15803d;
+      font-weight: 600;
+    }
+
+    /* Custom Generator Card */
+    .custom-box {
+      background: #fff;
+      border: 1px solid var(--clr-border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+    .custom-box h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .custom-form {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .custom-input {
+      flex: 1;
+      min-width: 240px;
+      height: 42px;
+      border: 1px solid var(--clr-border);
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 0.9rem;
+    }
+    .custom-result {
+      margin-top: 20px;
+      display: none;
+      align-items: center;
+      gap: 20px;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .header, .instructions-card, .custom-box, .btn-group { display: none !important; }
+      .qr-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+      .qr-card { page-break-inside: avoid; border: 2px solid #000 !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>🏷️ Laboratory Equipment QR Testing Sheet</h1>
+      <p>Scan these real apparatus QR codes with your smartphone camera or your laptop webcam scanner</p>
+    </div>
+    <div class="btn-group">
+      <a href="qr_testing_sheet.pdf" download="Laboratory_QR_Testing_Sheet.pdf" class="btn btn-outline" style="border-color:#15803d;color:#15803d;font-weight:700;">
+        📥 Download PDF Sheet
+      </a>
+      <button class="btn btn-outline" onclick="window.print()">
+        🖨️ Print Labels
+      </button>
+      <a href="index.html" class="btn btn-primary">
+        🚀 Open Lab Inventory App
+      </a>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions-card">
+    <strong>📱 How to Test QR Scanning in 2 Ways:</strong>
+    <ol>
+      <li><strong>Method 1 (Smartphone Camera):</strong> Open your mobile phone's built-in Camera app and point it directly at any of the QR codes on this monitor screen. The phone will instantly detect the tag text (e.g. <code>EQ-EL-001</code>).</li>
+      <li><strong>Method 2 (In-App Camera Scanner):</strong> Open the <strong><a href="index.html" style="color:#1d4ed8;font-weight:700;">Lab Inventory App</a></strong>, click the green <strong>"Scan QR Code"</strong> button in the topbar or inventory screen, allow camera access, and point the camera at any of the QR tags below. The apparatus record will pop up instantly!</li>
+    </ol>
+  </div>
+
+  <!-- Real Testing Apparatus QR Cards Grid -->
+  <div class="qr-grid">
+
+    <!-- Card 1: Multimeter -->
+    <div class="qr-card">
+      <div class="qr-img-box">
+        <img src="qr_samples/qr_EQ-EL-001.png" alt="QR EQ-EL-001" />
+      </div>
+      <div class="qr-info">
+        <span class="qr-badge">EQ-EL-001</span>
+        <div class="qr-name">Digital Multimeter</div>
+        <div class="qr-model">Fluke 87V Precision</div>
+        <div class="qr-loc">📍 Room 201 - Bench B2</div>
+      </div>
+    </div>
+
+    <!-- Card 2: Oscilloscope -->
+    <div class="qr-card">
+      <div class="qr-img-box">
+        <img src="qr_samples/qr_EQ-EL-005.png" alt="QR EQ-EL-005" />
+      </div>
+      <div class="qr-info">
+        <span class="qr-badge">EQ-EL-005</span>
+        <div class="qr-name">Digital Oscilloscope (DSO)</div>
+        <div class="qr-model">Rigol DS1054Z 50MHz</div>
+        <div class="qr-loc">📍 Room 202 - Rack A3</div>
+      </div>
+    </div>
+
+    <!-- Card 3: Beaker Set -->
+    <div class="qr-card">
+      <div class="qr-img-box">
+        <img src="qr_samples/qr_GW-CH-002.png" alt="QR GW-CH-002" />
+      </div>
+      <div class="qr-info">
+        <span class="qr-badge">GW-CH-002</span>
+        <div class="qr-name">Beaker Set (500 mL)</div>
+        <div class="qr-model">Borosil Class A Glass</div>
+        <div class="qr-loc">📍 Cabinet C - Shelf 1</div>
+      </div>
+    </div>
+
+    <!-- Card 4: Soldering Iron -->
+    <div class="qr-card">
+      <div class="qr-img-box">
+        <img src="qr_samples/qr_EQ-EL-003.png" alt="QR EQ-EL-003" />
+      </div>
+      <div class="qr-info">
+        <span class="qr-badge">EQ-EL-003</span>
+        <div class="qr-name">Soldering Station</div>
+        <div class="qr-model">Weller WLC100 40W</div>
+        <div class="qr-loc">📍 Room 201 - Workstation 4</div>
+      </div>
+    </div>
+
+    <!-- Card 5: Vernier Caliper -->
+    <div class="qr-card">
+      <div class="qr-img-box">
+        <img src="qr_samples/qr_TL-ME-007.png" alt="QR TL-ME-007" />
+      </div>
+      <div class="qr-info">
+        <span class="qr-badge">TL-ME-007</span>
+        <div class="qr-name">Vernier Caliper Digital</div>
+        <div class="qr-model">Mitutoyo 150mm Electronic</div>
+        <div class="qr-loc">📍 Tool Chest - Drawer 1</div>
+      </div>
+    </div>
+
+    <!-- Card 6: Custom Live Dynamic Generator -->
+    <div class="qr-card" style="border-color:#15803d;background:#f0fdf4;">
+      <div class="qr-img-box" id="dynamicQrBox">
+        <!-- Rendered via JS -->
+      </div>
+      <div class="qr-info">
+        <span class="qr-badge" style="background:#15803d;color:#fff;" id="dynamicBadge">CH-RG-004</span>
+        <div class="qr-name" id="dynamicName">Copper Sulphate</div>
+        <div class="qr-model" id="dynamicModel">Analytical Grade 99%</div>
+        <div class="qr-loc" id="dynamicLoc">📍 Chemical Storage - Cabinet K</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Custom On-The-Fly Generator Section -->
+  <div class="custom-box">
+    <h2>⚡ Generate Custom Apparatus QR Code</h2>
+    <p style="font-size:0.85rem;color:var(--clr-muted);">Type any equipment code or apparatus name to render an instant QR tag:</p>
+    <div class="custom-form">
+      <input type="text" id="customCodeInput" class="custom-input" placeholder="Enter code (e.g. EQ-EL-009 or MY-CUSTOM-TAG)" value="EQ-EL-009" />
+      <button class="btn btn-primary" onclick="generateCustomQr()">Generate QR Code</button>
+    </div>
+    <div class="custom-result" id="customResultBox">
+      <div id="customQrCanvas" style="background:#fff;padding:8px;border:1px solid #cbd5e1;border-radius:8px;"></div>
+      <div>
+        <h3 id="customResultTitle" style="font-size:1.05rem;font-weight:700;color:#0f172a;">EQ-EL-009</h3>
+        <p style="font-size:0.82rem;color:var(--clr-muted);margin-top:2px;">Scannable QR tag generated. Point camera to scan.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Render Dynamic Card 6 QR on load
+  window.addEventListener('DOMContentLoaded', function() {
+    const box = document.getElementById('dynamicQrBox');
+    if (box && typeof QRCode !== 'undefined') {
+      new QRCode(box, {
+        text: 'CH-RG-004',
+        width: 100,
+        height: 100,
+        colorDark: '#0f172a',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+  });
+
+  function generateCustomQr() {
+    const val = document.getElementById('customCodeInput').value.trim();
+    if (!val) return;
+    const canvas = document.getElementById('customQrCanvas');
+    const resultBox = document.getElementById('customResultBox');
+    const title = document.getElementById('customResultTitle');
+    
+    canvas.innerHTML = '';
+    new QRCode(canvas, {
+      text: val,
+      width: 120,
+      height: 120,
+      colorDark: '#0f172a',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    title.textContent = val;
+    resultBox.style.display = 'flex';
+  }
+</script>
+
+</body>
+</html>

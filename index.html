@@ -14,12 +14,18 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
+  <!-- QRCode.js CDN for Printable Asset Tags -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <!-- HTML5-QRCode CDN for Camera Barcode/QR Scanning -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="style.css?v=2.2" />
+  <link rel="stylesheet" href="style.css?v=3.2" />
 </head>
 <body>
 
-<!-- ── Admin Login Screen Overlay ────────────────────────────────────── -->
+<!-- ── Multi-Role Login Screen Overlay ────────────────────────────────────── -->
 <div id="loginScreen" class="login-screen-overlay">
   <div class="login-card">
     <div class="login-header">
@@ -30,13 +36,13 @@
           <line x1="6" y1="7" x2="18" y2="7"/>
         </svg>
       </div>
-      <h2>Lab Inventory</h2>
-      <p>Authorized Admin Portal &amp; Equipment Control</p>
+      <h2>Lab Inventory Portal</h2>
+      <p>Laboratory Equipment Management &amp; Access Control</p>
     </div>
 
     <form id="loginForm" onsubmit="event.preventDefault(); handleAdminLogin(event); return false;" class="login-form">
       <div class="login-field">
-        <label for="loginUsername">Username / Admin ID</label>
+        <label for="loginUsername">Username / ID</label>
         <div class="input-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -51,7 +57,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
-          <input type="password" id="loginPassword" placeholder="Enter password (e.g. admin123)" required autocomplete="current-password" />
+          <input type="password" id="loginPassword" placeholder="Enter password" required autocomplete="current-password" />
           <button type="button" onclick="togglePasswordVisibility()" title="Show/Hide password" style="position:absolute;right:12px;background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;padding:4px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -63,18 +69,23 @@
       <div id="loginAlert" class="login-error-alert hidden"></div>
 
       <button type="button" class="login-btn" id="loginSubmitBtn" onclick="handleAdminLogin(event)">
-        Sign In to Dashboard
+        Sign In to Portal
       </button>
     </form>
 
     <div class="login-footer">
-      <p style="margin-bottom:8px;">Default Credentials: Username: <code>admin</code> | Password: <code>admin123</code></p>
-      <button type="button" onclick="autoFillCredentials()" style="background:#f1f5f9;border:1px solid #cbd5e1;padding:5px 12px;border-radius:6px;font-size:0.78rem;font-weight:600;color:#155d2a;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background 0.2s;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-        Quick Fill Admin Credentials
-      </button>
+      <p style="margin-bottom:8px;font-size:0.76rem;color:#64748b;">Instant Demo Logins (Click to autofill):</p>
+      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+        <button type="button" onclick="autoFillRole('admin')" style="background:#f1f5f9;border:1px solid #cbd5e1;padding:5px 9px;border-radius:6px;font-size:0.75rem;font-weight:600;color:#1e3a1e;cursor:pointer;">
+          👑 Admin (admin123)
+        </button>
+        <button type="button" onclick="autoFillRole('assistant')" style="background:#f1f5f9;border:1px solid #cbd5e1;padding:5px 9px;border-radius:6px;font-size:0.75rem;font-weight:600;color:#0369a1;cursor:pointer;">
+          🛠️ Assistant (assist123)
+        </button>
+        <button type="button" onclick="autoFillRole('student')" style="background:#f1f5f9;border:1px solid #cbd5e1;padding:5px 9px;border-radius:6px;font-size:0.75rem;font-weight:600;color:#15803d;cursor:pointer;">
+          🎓 Student (student123)
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -138,7 +149,7 @@
         <span class="nav-item-text">Categories</span>
       </li>
 
-      <p class="nav-label" style="margin-top:10px;">Operations &amp; Audits</p>
+      <p class="nav-label" style="margin-top:10px;">Circulation &amp; Ops</p>
 
       <li class="nav-item" data-section="issue" onclick="navigate('issue', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -150,6 +161,17 @@
         <span class="nav-badge" id="sidebarIssueCount" style="background:rgba(2,132,199,0.3);color:#7dd3fc">–</span>
       </li>
 
+      <li class="nav-item" data-section="reservations" onclick="navigate('reservations', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="nav-item-text">Reservations</span>
+        <span class="nav-badge" id="sidebarResCount" style="background:rgba(16,185,129,0.3);color:#6ee7b7">0</span>
+      </li>
+
       <li class="nav-item" data-section="maintenance" onclick="navigate('maintenance', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
@@ -159,6 +181,28 @@
         <span class="nav-badge" id="sidebarMaintCount" style="background:rgba(217,119,6,0.3);color:#fde68a">–</span>
       </li>
 
+      <li class="nav-item" data-section="transfers" onclick="navigate('transfers', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="17 1 21 5 17 9"/>
+          <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+          <polyline points="7 23 3 19 7 15"/>
+          <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+        </svg>
+        <span class="nav-item-text">Lab Transfers</span>
+        <span class="nav-badge" id="sidebarTrfCount" style="background:rgba(139,92,246,0.3);color:#c4b5fd">0</span>
+      </li>
+
+      <p class="nav-label" style="margin-top:10px;">Management &amp; Audits</p>
+
+      <li class="nav-item" data-section="vendors" onclick="navigate('vendors', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span class="nav-item-text">Vendors &amp; Procurement</span>
+      </li>
+
       <li class="nav-item" data-section="reports" onclick="navigate('reports', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
@@ -166,6 +210,14 @@
           <line x1="6" y1="20" x2="6" y2="14"/>
         </svg>
         <span class="nav-item-text">Reports</span>
+      </li>
+
+      <li class="nav-item" data-section="audit" onclick="navigate('audit', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="nav-item-text">Audit Trail</span>
       </li>
 
       <li class="nav-item" data-section="settings" onclick="navigate('settings', this)">
@@ -190,7 +242,7 @@
 
     <!-- Footer -->
     <div class="sidebar-footer">
-      <p>Lab Inventory v2.0<br>Phase 2 &mdash; <strong>70% Complete</strong></p>
+      <p>Lab Inventory v3.0<br>Phase 3 &mdash; <strong>100% Production Ready</strong></p>
     </div>
 
   </aside><!-- /.sidebar -->
@@ -210,10 +262,18 @@
         </button>
         <div class="topbar-title">
           <h1 id="pageTitle">Dashboard</h1>
-          <p>Laboratory Equipment Records, Circulation, Maintenance &amp; Inventory Reports</p>
+          <p id="pageSubtitle">Laboratory Equipment Records, Circulation, Maintenance &amp; Inventory Reports</p>
         </div>
       </div>
       <div class="topbar-right">
+        <!-- Quick QR / Barcode Scanner Header Button -->
+        <button class="btn btn-outline scanner-quick-btn" onclick="openQrScannerModal()" title="Open QR & Barcode Camera Scanner" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:0.82rem;font-weight:600;border-color:#15803d;color:#15803d;background:rgba(34,197,94,0.06);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="14.01"/><line x1="17" y1="17" x2="17" y2="17.01"/><line x1="20" y1="14" x2="20" y2="14.01"/><line x1="20" y1="20" x2="20" y2="20.01"/><line x1="14" y1="20" x2="14" y2="20.01"/>
+          </svg>
+          Scan QR Code
+        </button>
+
         <button class="notif-btn" title="Notifications" onclick="showNotifications()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round">
@@ -222,18 +282,55 @@
           </svg>
           <span class="notif-dot" id="notifDot"></span>
         </button>
-        <div class="user-chip" title="Admin Account">
-          <div class="user-avatar" id="currentUserAvatar">AD</div>
-          <span class="user-name" id="currentUserName">Admin</span>
-          <button class="logout-btn" onclick="handleAdminLogout()" title="Logout Admin">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-              <polyline points="16 17 21 12 16 7"/>
-              <line x1="21" y1="12" x2="9" y2="12"/>
+
+        <!-- User Role Switcher & Profile Dropdown -->
+        <div class="user-chip-container" style="position:relative;">
+          <div class="user-chip" id="userProfileChip" onclick="toggleRoleDropdown()" title="Click to switch role / profile">
+            <div class="user-avatar" id="currentUserAvatar">AD</div>
+            <div style="display:flex;flex-direction:column;text-align:left;line-height:1.2;">
+              <span class="user-name" id="currentUserName">Admin</span>
+              <span id="currentUserRoleBadge" style="font-size:0.7rem;font-weight:700;color:var(--clr-primary-light);">Administrator</span>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-left:4px;color:#94a3b8;">
+              <polyline points="6 9 12 15 18 9"/>
             </svg>
-            Logout
-          </button>
+          </div>
+
+          <!-- Role Switcher Dropdown Menu -->
+          <div id="roleDropdownMenu" class="role-dropdown hidden" style="position:absolute;right:0;top:100%;margin-top:8px;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);width:220px;z-index:100;overflow:hidden;">
+            <div style="padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:0.75rem;font-weight:700;color:#64748b;text-transform:uppercase;">
+              Switch Role View
+            </div>
+            <a href="javascript:void(0)" onclick="switchUserRole('admin')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;color:#0f172a;text-decoration:none;font-size:0.83rem;border-bottom:1px solid #f1f5f9;transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+              <span style="font-size:1.1rem;">👑</span>
+              <div>
+                <strong style="display:block;">Administrator</strong>
+                <small style="color:#64748b;font-size:0.72rem;">Full CRUD &amp; Settings</small>
+              </div>
+            </a>
+            <a href="javascript:void(0)" onclick="switchUserRole('assistant')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;color:#0f172a;text-decoration:none;font-size:0.83rem;border-bottom:1px solid #f1f5f9;transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+              <span style="font-size:1.1rem;">🛠️</span>
+              <div>
+                <strong style="display:block;">Lab Assistant</strong>
+                <small style="color:#64748b;font-size:0.72rem;">Loans, Stock &amp; Repairs</small>
+              </div>
+            </a>
+            <a href="javascript:void(0)" onclick="switchUserRole('student')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;color:#0f172a;text-decoration:none;font-size:0.83rem;border-bottom:1px solid #f1f5f9;transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+              <span style="font-size:1.1rem;">🎓</span>
+              <div>
+                <strong style="display:block;">Student / Researcher</strong>
+                <small style="color:#64748b;font-size:0.72rem;">Catalog &amp; Reservations</small>
+              </div>
+            </a>
+            <a href="javascript:void(0)" onclick="handleAdminLogout()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;color:#ef4444;text-decoration:none;font-size:0.83rem;background:#fef2f2;font-weight:600;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Sign Out
+            </a>
+          </div>
         </div>
+
       </div>
     </header>
 
@@ -339,39 +436,71 @@
             </div>
           </div>
 
+          <div class="stat-card" style="border-top:3px solid #10b981;cursor:pointer;" onclick="navigate('reservations', document.querySelector('[data-section=reservations]'))">
+            <div class="stat-icon" style="background:#d1fae5;color:#059669">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="statPendingRes">0</div>
+              <div class="stat-label">Pending Bookings</div>
+              <div class="stat-delta" style="color:#059669">Student practical slots</div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="border-top:3px solid #8b5cf6;cursor:pointer;" onclick="navigate('transfers', document.querySelector('[data-section=transfers]'))">
+            <div class="stat-icon" style="background:#ede9fe;color:#7c3aed">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="statActiveTransfers">0</div>
+              <div class="stat-label">Lab Transfers</div>
+              <div class="stat-delta" style="color:#7c3aed">In-transit custody</div>
+            </div>
+          </div>
+
         </div><!-- /.stats-grid -->
 
         <!-- Quick Actions -->
-        <div class="quick-actions">
-          <button class="btn btn-primary" onclick="navigate('inventory', document.querySelector('[data-section=inventory]'))">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
+        <div class="quick-actions" style="flex-wrap:wrap;gap:10px;">
+          <button class="btn btn-outline" onclick="openQrScannerModal()" style="border-color:#15803d;color:#15803d;background:rgba(34,197,94,0.06);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
             </svg>
-            Manage Equipment
+            Scan QR Code
           </button>
-          <button class="btn btn-gold" onclick="openAddModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
+          <button class="btn btn-gold admin-only" onclick="openAddModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Add New Equipment
+            Add Equipment
           </button>
-          <button class="btn btn-issue" onclick="openIssueModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
+          <button class="btn btn-issue staff-only" onclick="openIssueModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
             </svg>
             Issue Equipment
           </button>
-          <button class="btn btn-outline" onclick="navigate('reports', document.querySelector('[data-section=reports]'))">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-              <line x1="6" y1="20" x2="6" y2="14"/>
+          <button class="btn btn-primary" onclick="openNewReservationModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
             </svg>
-            Generate Reports
+            Book Lab Slot
+          </button>
+          <button class="btn btn-outline staff-only" onclick="openNewTransferModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+            </svg>
+            Transfer Asset
+          </button>
+          <button class="btn btn-outline staff-only" onclick="openOverdueNoticeModal()" style="border-color:#dc2626;color:#dc2626;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            Overdue Reminders
           </button>
         </div>
 
@@ -717,6 +846,95 @@
       </section><!-- /#section-issue -->
 
 
+      <!-- ════════ RESERVATIONS SECTION (PHASE 3 - 100%) ════════ -->
+      <section id="section-reservations" class="section">
+        <div class="section-header">
+          <div>
+            <h2>Student Online Reservations &amp; Lab Bookings</h2>
+            <p>Advance equipment reservations for laboratory experiments and practical exam sessions</p>
+          </div>
+          <button class="btn btn-primary" onclick="openNewReservationModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+            </svg>
+            Book Equipment Slot
+          </button>
+        </div>
+
+        <!-- Reservation Stat Cards -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));margin-bottom:20px;">
+          <div class="stat-card" style="border-top:3px solid #0284c7;">
+            <div class="stat-info">
+              <div class="stat-value" id="resKpiTotal">0</div>
+              <div class="stat-label">Total Reservations</div>
+              <div class="stat-delta">Semester Booking Log</div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #f59e0b;">
+            <div class="stat-info">
+              <div class="stat-value" id="resKpiPending" style="color:#d97706;">0</div>
+              <div class="stat-label">Pending Approval</div>
+              <div class="stat-delta">Awaiting Lab In-Charge</div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #10b981;">
+            <div class="stat-info">
+              <div class="stat-value" id="resKpiApproved" style="color:#059669;">0</div>
+              <div class="stat-label">Approved &amp; Reserved</div>
+              <div class="stat-delta">Ready for student pickup</div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #6366f1;">
+            <div class="stat-info">
+              <div class="stat-value" id="resKpiIssued">0</div>
+              <div class="stat-label">Converted to Active Loans</div>
+              <div class="stat-delta">Collected by students</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="card">
+          <div class="table-toolbar" style="padding:14px 18px;border-bottom:1px solid var(--clr-border);display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div class="search-wrap" style="max-width:320px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="resSearchInput" class="search-input" placeholder="Search by student, ID, or apparatus…" oninput="filterReservations()" />
+            </div>
+
+            <div class="category-chips" id="resStatusChips" style="margin-left:auto;">
+              <button class="chip active" data-res-status="All" onclick="setResFilter(this)">All</button>
+              <button class="chip" data-res-status="Pending" onclick="setResFilter(this)">Pending</button>
+              <button class="chip" data-res-status="Approved" onclick="setResFilter(this)">Approved</button>
+              <button class="chip" data-res-status="Issued" onclick="setResFilter(this)">Issued</button>
+              <button class="chip" data-res-status="Rejected" onclick="setResFilter(this)">Rejected</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table id="reservationsTable">
+              <thead>
+                <tr>
+                  <th>Booking #</th>
+                  <th>Equipment Item</th>
+                  <th>Student / Borrower</th>
+                  <th>Department</th>
+                  <th>Date &amp; Time Slot</th>
+                  <th>Qty</th>
+                  <th>Experiment Purpose</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reservationsTableBody">
+                <tr class="loading-row"><td colspan="9">Loading laboratory reservations…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section><!-- /#section-reservations -->
+
+
       <!-- ════════ MAINTENANCE SECTION (PHASE 2 - 70%) ════════ -->
       <section id="section-maintenance" class="section">
         <div class="section-header">
@@ -806,6 +1024,93 @@
           </div>
         </div>
       </section><!-- /#section-maintenance -->
+
+
+      <!-- ════════ LAB TRANSFERS SECTION (PHASE 3 - 100%) ════════ -->
+      <section id="section-transfers" class="section">
+        <div class="section-header">
+          <div>
+            <h2>Multi-Laboratory Inter-Room Transfers</h2>
+            <p>Track equipment movement, custody dispatch, and inter-departmental transfers across campus labs</p>
+          </div>
+          <button class="btn btn-primary" onclick="openNewTransferModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+            </svg>
+            Request Lab Transfer
+          </button>
+        </div>
+
+        <!-- Transfer Stats Grid -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));margin-bottom:20px;">
+          <div class="stat-card" style="border-top:3px solid #8b5cf6;">
+            <div class="stat-info">
+              <div class="stat-value" id="trfKpiTotal">0</div>
+              <div class="stat-label">Total Transfers</div>
+              <div class="stat-delta">Inter-Lab History</div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #f59e0b;">
+            <div class="stat-info">
+              <div class="stat-value" id="trfKpiPending" style="color:#d97706;">0</div>
+              <div class="stat-label">Pending Approval</div>
+              <div class="stat-delta">Awaiting Dispatch</div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #0284c7;">
+            <div class="stat-info">
+              <div class="stat-value" id="trfKpiDispatched" style="color:#0284c7;">0</div>
+              <div class="stat-label">In Transit</div>
+              <div class="stat-delta">Dispatched between rooms</div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #10b981;">
+            <div class="stat-info">
+              <div class="stat-value" id="trfKpiReceived" style="color:#059669;">0</div>
+              <div class="stat-label">Received &amp; Verified</div>
+              <div class="stat-delta">Custody Signed Off</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-toolbar" style="padding:14px 18px;border-bottom:1px solid var(--clr-border);display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div class="search-wrap" style="max-width:320px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="trfSearchInput" class="search-input" placeholder="Search by apparatus or room…" oninput="filterTransfers()" />
+            </div>
+
+            <div class="category-chips" id="trfStatusChips" style="margin-left:auto;">
+              <button class="chip active" data-trf-status="All" onclick="setTrfFilter(this)">All</button>
+              <button class="chip" data-trf-status="Pending" onclick="setTrfFilter(this)">Pending</button>
+              <button class="chip" data-trf-status="Dispatched" onclick="setTrfFilter(this)">In Transit</button>
+              <button class="chip" data-trf-status="Received" onclick="setTrfFilter(this)">Received</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table id="transfersTable">
+              <thead>
+                <tr>
+                  <th>Transfer #</th>
+                  <th>Equipment Item &amp; Code</th>
+                  <th>Origin Location</th>
+                  <th>Destination Location</th>
+                  <th>Qty</th>
+                  <th>Requested By</th>
+                  <th>Transfer Date</th>
+                  <th>Status</th>
+                  <th>Custody Action</th>
+                </tr>
+              </thead>
+              <tbody id="transfersTableBody">
+                <tr class="loading-row"><td colspan="9">Loading laboratory transfers…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section><!-- /#section-transfers -->
 
 
       <!-- ════════ REPORTS SECTION (PHASE 2 - 70%) ════════ -->
@@ -926,40 +1231,411 @@
       </section><!-- /#section-reports -->
 
 
-      <!-- ════════ SETTINGS SECTION ════════ -->
-      <section id="section-settings" class="section">
+      <!-- ════════ VENDORS & PROCUREMENT SECTION (PHASE 3 - 100%) ════════ -->
+      <section id="section-vendors" class="section">
         <div class="section-header">
-          <div><h2>Settings &amp; Configuration</h2><p>Laboratory preferences and system roadmap</p></div>
+          <div>
+            <h2>Vendors, Procurement &amp; Equipment Warranties</h2>
+            <p>Laboratory supplier directory, equipment procurement valuations, and warranty expiration monitoring</p>
+          </div>
+          <button class="btn btn-primary admin-only" onclick="openVendorModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Supplier / Vendor
+          </button>
         </div>
-        <div class="card">
-          <div style="padding:30px;">
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-              <span class="phase-badge" style="background:#dcfce7;color:#15803d;padding:6px 14px;border-radius:20px;font-weight:700;">✓ Phase 1 &amp; Phase 2 (70%) Active</span>
-              <span class="phase-badge" style="background:#fef9c3;color:#a16207;padding:6px 14px;border-radius:20px;font-weight:700;">⚙ Phase 3 (100% Roadmap)</span>
-            </div>
-            <h3 style="color:var(--clr-text-900);margin-bottom:8px;">Laboratory Settings &amp; Roadmap</h3>
-            <p class="text-muted" style="margin-bottom:20px;">Your Lab Inventory Management System currently includes full Equipment Records, Stock Management, Issue &amp; Return with Overdue tracking, Maintenance Monitoring, and Complete Reports with CSV/Print Export.</p>
 
-            <div class="spec-grid">
-              <div class="spec-box">
-                <div class="spec-title">Database Engine</div>
-                <div class="spec-val">MySQL (InnoDB, utf8mb4)</div>
-              </div>
-              <div class="spec-box">
-                <div class="spec-title">Backend Architecture</div>
-                <div class="spec-val">PHP 8 RESTful APIs</div>
-              </div>
-              <div class="spec-box">
-                <div class="spec-title">Active Laboratory</div>
-                <div class="spec-val">Central Engineering Lab</div>
-              </div>
-              <div class="spec-box">
-                <div class="spec-title">Next Update (Phase 3)</div>
-                <div class="spec-val">Auth, QR Codes, Email Reminders</div>
-              </div>
+        <!-- Procurement & Valuation Metrics -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));margin-bottom:20px;">
+          <div class="stat-card" style="border-top:3px solid #10b981;">
+            <div class="stat-info">
+              <div class="stat-value" id="procValuation">₹0.00</div>
+              <div class="stat-label">Total Asset Valuation</div>
+              <div class="stat-delta">Procured Equipment Value</div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #0284c7;">
+            <div class="stat-info">
+              <div class="stat-value" id="procTotalVendors">0</div>
+              <div class="stat-label">Registered Vendors</div>
+              <div class="stat-delta">Approved Suppliers</div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #f59e0b;">
+            <div class="stat-info">
+              <div class="stat-value" id="procExpiringWarranties" style="color:#d97706;">0</div>
+              <div class="stat-label">Expiring Warranties (&lt; 30d)</div>
+              <div class="stat-delta">Service Renewal Needed</div>
+            </div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #ef4444;">
+            <div class="stat-info">
+              <div class="stat-value" id="procExpiredWarranties" style="color:#dc2626;">0</div>
+              <div class="stat-label">Expired Warranties</div>
+              <div class="stat-delta">Out of OEM coverage</div>
             </div>
           </div>
         </div>
+
+        <!-- Warranty Alert Banner -->
+        <div class="card" id="warrantyAlertCard" style="margin-bottom:20px;display:none;">
+          <div class="card-header" style="background:#fffbeb;border-bottom:1px solid #fef3c7;">
+            <div class="card-title" style="color:#92400e;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#d97706;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Upcoming Warranty Expiration Alerts
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="warrantyAlertTable">
+              <thead>
+                <tr>
+                  <th>Equipment Item &amp; Code</th>
+                  <th>Location</th>
+                  <th>Vendor / OEM</th>
+                  <th>Warranty Expiry</th>
+                  <th>Days Remaining</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="warrantyAlertTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Vendor Directory Table -->
+        <div class="card">
+          <div class="table-toolbar" style="padding:14px 18px;border-bottom:1px solid var(--clr-border);display:flex;gap:12px;align-items:center;">
+            <div class="search-wrap" style="max-width:340px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="vendorSearchInput" class="search-input" placeholder="Search vendors by company, contact, or category…" oninput="filterVendors()" />
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table id="vendorsTable">
+              <thead>
+                <tr>
+                  <th>Supplier / Company</th>
+                  <th>Contact Person</th>
+                  <th>Phone Number</th>
+                  <th>Email Address</th>
+                  <th>Supplied Categories</th>
+                  <th>Vendor Rating</th>
+                  <th>Supplied Items</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="vendorsTableBody">
+                <tr class="loading-row"><td colspan="8">Loading vendor directory…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section><!-- /#section-vendors -->
+
+
+      <!-- ════════ AUDIT TRAIL SECTION (PHASE 3 - 100%) ════════ -->
+      <section id="section-audit" class="section">
+        <div class="section-header">
+          <div>
+            <h2>Security &amp; Activity Audit Trail</h2>
+            <p>Immutable chronological log of all laboratory equipment additions, edits, loans, returns, and maintenance events</p>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-outline" onclick="exportAuditLogCSV()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export Audit CSV
+            </button>
+            <button class="btn btn-outline admin-only" onclick="clearAuditTrail()" style="border-color:#ef4444;color:#ef4444;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Clear Log
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-toolbar" style="padding:14px 18px;border-bottom:1px solid var(--clr-border);display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div class="search-wrap" style="max-width:320px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="auditSearchInput" class="search-input" placeholder="Search audit logs…" oninput="filterAuditLogs()" />
+            </div>
+
+            <div style="margin-left:auto;display:flex;gap:10px;align-items:center;">
+              <select id="auditActionFilter" class="report-select" onchange="filterAuditLogs()">
+                <option value="All">All Activity Types</option>
+                <option value="ITEM_CREATED">Item Added</option>
+                <option value="ITEM_UPDATED">Item Updated</option>
+                <option value="ITEM_RESTOCK">Item Restocked</option>
+                <option value="ITEM_ISSUED">Loan Issued</option>
+                <option value="ITEM_RETURNED">Loan Returned</option>
+                <option value="MAINTENANCE_CREATED">Maintenance Scheduled</option>
+                <option value="MAINTENANCE_COMPLETED">Maintenance Completed</option>
+                <option value="TRANSFER_REQUEST">Transfer Requested</option>
+                <option value="TRANSFER_RECEIVED">Transfer Received</option>
+                <option value="RESERVATION_CREATED">Slot Reserved</option>
+                <option value="RESERVATION_ISSUED">Reservation Converted</option>
+                <option value="LOGIN">User Logins</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table id="auditTable">
+              <thead>
+                <tr>
+                  <th>Log #</th>
+                  <th>Date &amp; Time</th>
+                  <th>User &amp; Role</th>
+                  <th>Action</th>
+                  <th>Target Apparatus</th>
+                  <th>Activity Description</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <tr class="loading-row"><td colspan="6">Loading activity audit trail…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section><!-- /#section-audit -->
+
+
+      <!-- ════════ SETTINGS SECTION (PHASE 3 - 100%) ════════ -->
+      <section id="section-settings" class="section">
+        <!-- Section Header -->
+        <div class="section-header">
+          <div>
+            <h2>System &amp; Laboratory Settings</h2>
+            <p>Configure laboratory department profiles, circulation rules, notifications, and preferences</p>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <button type="button" class="btn btn-outline" onclick="resetSettingsToDefault()" style="font-size:0.82rem;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Reset Defaults
+            </button>
+            <button type="button" class="btn btn-primary" onclick="saveSettingsForm(event)" style="font-size:0.82rem;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save Settings
+            </button>
+          </div>
+        </div>
+
+        <form id="settingsForm" onsubmit="event.preventDefault(); saveSettingsForm(event); return false;">
+          <div class="settings-grid">
+
+            <!-- Card 1: Laboratory & Campus Information -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  Laboratory &amp; Campus Profile
+                </div>
+                <span style="font-size:0.75rem;color:var(--clr-text-500);font-weight:600;">General Info</span>
+              </div>
+              <div style="padding:22px;display:flex;flex-direction:column;gap:16px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" for="settingOrgName">Institution / University Name</label>
+                  <input type="text" id="settingOrgName" class="form-input" placeholder="e.g. Central Engineering College" value="Central Engineering College" />
+                  <small class="text-muted">Displays on print headers, QR tags, and exported reports</small>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" for="settingDeptName">Department / Faculty</label>
+                  <input type="text" id="settingDeptName" class="form-input" placeholder="e.g. Department of Electronics &amp; Communication" value="Department of Electronics &amp; Communication" />
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingLabName">Primary Lab Name</label>
+                    <input type="text" id="settingLabName" class="form-input" placeholder="e.g. Central Research Lab" value="Central Hardware &amp; Research Lab" />
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingRoomNo">Default Room / Block</label>
+                    <input type="text" id="settingRoomNo" class="form-input" placeholder="e.g. Room 201 - Science Wing" value="Room 201 - Science Block" />
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingInchargeName">Lab In-Charge Name</label>
+                    <input type="text" id="settingInchargeName" class="form-input" placeholder="e.g. Prof. H. R. Sharma" value="Prof. H. R. Sharma" />
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingInchargeEmail">In-Charge Email Address</label>
+                    <input type="email" id="settingInchargeEmail" class="form-input" placeholder="e.g. incharge@college.edu" value="lab-incharge@univ.edu" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Circulation & Policy Rules -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Circulation &amp; Reservation Rules
+                </div>
+                <span style="font-size:0.75rem;color:var(--clr-text-500);font-weight:600;">Policies</span>
+              </div>
+              <div style="padding:22px;display:flex;flex-direction:column;gap:16px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingLoanDays">Default Loan Period (Days)</label>
+                    <input type="number" id="settingLoanDays" class="form-input" min="1" max="90" value="14" />
+                    <small class="text-muted">Standard borrower loan timeframe</small>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingMaxItems">Max Items Per Student</label>
+                    <input type="number" id="settingMaxItems" class="form-input" min="1" max="10" value="2" />
+                    <small class="text-muted">Concurrent active loan limit</small>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingMinStock">Min Stock Alert Threshold</label>
+                    <input type="number" id="settingMinStock" class="form-input" min="1" max="50" value="3" />
+                    <small class="text-muted">Default low stock warning level</small>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingNoticeDays">Overdue Notice Lead (Days)</label>
+                    <input type="number" id="settingNoticeDays" class="form-input" min="1" max="7" value="2" />
+                    <small class="text-muted">Days before due date to alert</small>
+                  </div>
+                </div>
+                
+                <div style="display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid #f1f5f9;">
+                  <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--clr-text-800);">
+                    <input type="checkbox" id="settingAllowWeekend" checked style="width:17px;height:17px;accent-color:var(--clr-green-600);" />
+                    <span>Allow Returns &amp; Bookings on Weekends / Holidays</span>
+                  </label>
+                  <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--clr-text-800);">
+                    <input type="checkbox" id="settingAutoOverdueBanner" checked style="width:17px;height:17px;accent-color:var(--clr-green-600);" />
+                    <span>Display Dashboard Warning Banner when Overdue Items are Present</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3: Display & Localization Preferences -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  Display &amp; Localization
+                </div>
+                <span style="font-size:0.75rem;color:var(--clr-text-500);font-weight:600;">UI &amp; Locale</span>
+              </div>
+              <div style="padding:22px;display:flex;flex-direction:column;gap:16px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingCurrency">Currency Representation</label>
+                    <select id="settingCurrency" class="form-select">
+                      <option value="₹">₹ INR (Indian Rupee)</option>
+                      <option value="$">$ USD (US Dollar)</option>
+                      <option value="€">€ EUR (Euro)</option>
+                      <option value="£">£ GBP (British Pound)</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingDateFormat">Date Format</label>
+                    <select id="settingDateFormat" class="form-select">
+                      <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+                      <option value="DD/MM/YYYY">DD/MM/YYYY (UK/IN)</option>
+                      <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingPageSize">Inventory Table Page Size</label>
+                    <select id="settingPageSize" class="form-select">
+                      <option value="15">15 records per page</option>
+                      <option value="25" selected>25 records per page</option>
+                      <option value="50">50 records per page</option>
+                      <option value="100">100 records per page</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="settingTheme">Interface Color Theme</label>
+                    <select id="settingTheme" class="form-select" onchange="applyThemeSetting(this.value)">
+                      <option value="forest">Forest Green &amp; Gold (Standard)</option>
+                      <option value="navy">Classic Blue &amp; Slate</option>
+                      <option value="emerald">Emerald Vibrant</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid #f1f5f9;">
+                  <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--clr-text-800);">
+                    <input type="checkbox" id="settingScanBeep" checked style="width:17px;height:17px;accent-color:var(--clr-green-600);" />
+                    <span>Audible Notification on Successful QR / Barcode Scan</span>
+                  </label>
+                  <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.84rem;color:var(--clr-text-800);">
+                    <input type="checkbox" id="settingShowQuickStats" checked style="width:17px;height:17px;accent-color:var(--clr-green-600);" />
+                    <span>Show Real-Time Inventory Value KPI on Dashboard</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4: Backup, Maintenance & Diagnostics -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Data Maintenance &amp; Backup
+                </div>
+                <span style="font-size:0.75rem;color:var(--clr-text-500);font-weight:600;">Database &amp; Tools</span>
+              </div>
+              <div style="padding:22px;display:flex;flex-direction:column;gap:16px;">
+                <p class="text-muted" style="margin-bottom:0;">Export your complete laboratory records including items, equipment loans, reservations, inter-lab transfers, and audit logs.</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button type="button" class="btn btn-outline" onclick="exportFullSystemJSON()" style="font-size:0.8rem;padding:7px 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Export JSON Backup
+                  </button>
+                  <button type="button" class="btn btn-outline" onclick="exportCSV()" style="font-size:0.8rem;padding:7px 12px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Export CSV Spreadsheets
+                  </button>
+                </div>
+
+                <div style="margin-top:4px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+                  <div style="font-size:0.75rem;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">
+                    System Health &amp; Environment
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.8rem;">
+                    <div><span class="text-muted">Version:</span> <strong>v3.1 Production Ready</strong></div>
+                    <div><span class="text-muted">Database:</span> <strong style="color:#15803d;">MariaDB 10.4 (Online)</strong></div>
+                    <div><span class="text-muted">Web Engine:</span> <strong>Apache 2.4 (Port 80)</strong></div>
+                    <div><span class="text-muted">Active Role:</span> <strong id="settingActiveRoleText">Administrator</strong></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /.settings-grid -->
+
+          <!-- Save Settings Footer Bar -->
+          <div class="card" style="margin-top:4px;">
+            <div style="padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#15803d;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span style="font-size:0.83rem;color:var(--clr-text-700);">Settings are automatically saved in local storage and persist across all user sessions.</span>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <button type="button" class="btn btn-outline" onclick="resetSettingsToDefault()">Restore Defaults</button>
+                <button type="submit" class="btn btn-primary">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
       </section><!-- /#section-settings -->
 
     </main><!-- /.page-content -->
@@ -1052,6 +1728,31 @@
           </div>
         </div>
 
+        <!-- Phase 3: Procurement & Warranty Tracking -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:6px;">
+          <h4 style="font-size:0.8rem;text-transform:uppercase;color:#64748b;margin-bottom:10px;font-weight:700;">Procurement &amp; Warranty (Phase 3)</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group">
+              <label class="form-label" for="inputPurchasePrice">Purchase Price (₹)</label>
+              <input type="number" step="0.01" id="inputPurchasePrice" class="form-input" placeholder="0.00" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputVendorName">Supplier / Vendor Name</label>
+              <input type="text" id="inputVendorName" class="form-input" placeholder="e.g. Fluke Precision Instruments" />
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group">
+              <label class="form-label" for="inputPurchaseDate">Purchase Date</label>
+              <input type="date" id="inputPurchaseDate" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="inputWarrantyExpiry">Warranty Expiry Date</label>
+              <input type="date" id="inputWarrantyExpiry" class="form-input" />
+            </div>
+          </div>
+        </div>
+
       </div><!-- /.modal-body -->
 
       <div class="modal-footer">
@@ -1130,6 +1831,31 @@
           <div class="form-group">
             <label class="form-label">Threshold</label>
             <input type="number" id="editMinThreshold" class="form-input" min="1" />
+          </div>
+        </div>
+
+        <!-- Phase 3: Procurement & Warranty Tracking -->
+        <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:6px;">
+          <h4 style="font-size:0.8rem;text-transform:uppercase;color:#64748b;margin-bottom:10px;font-weight:700;">Procurement &amp; Warranty (Phase 3)</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group">
+              <label class="form-label">Purchase Price (₹)</label>
+              <input type="number" step="0.01" id="editPurchasePrice" class="form-input" placeholder="0.00" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Supplier / Vendor Name</label>
+              <input type="text" id="editVendorName" class="form-input" placeholder="e.g. Fluke Precision Instruments" />
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group">
+              <label class="form-label">Purchase Date</label>
+              <input type="date" id="editPurchaseDate" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Warranty Expiry Date</label>
+              <input type="date" id="editWarrantyExpiry" class="form-input" />
+            </div>
           </div>
         </div>
       </div>
@@ -1426,11 +2152,364 @@
 </div><!-- /#deleteModal -->
 
 
+<!-- ════════ PRINTABLE QR ASSET STICKER MODAL (PHASE 3) ════════ -->
+<div class="modal-overlay" id="qrCodeModal">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:540px;">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Equipment QR Asset Label
+      </h3>
+      <button class="modal-close" onclick="closeQrModal()">&times;</button>
+    </div>
+    <div class="modal-body" style="text-align:center;">
+      <p style="font-size:0.82rem;color:var(--clr-text-500);margin-bottom:14px;">Print and attach this barcode tag to the physical laboratory apparatus for instant camera scanning.</p>
+
+      <!-- Printable Sticker Tag Card -->
+      <div id="printableQrTag" class="printable-qr-tag" style="background:#ffffff;border:2px dashed #0f172a;border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px;text-align:left;margin:0 auto;max-width:440px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+        <div style="flex:1;">
+          <div style="font-size:0.65rem;font-weight:800;color:#64748b;letter-spacing:1px;text-transform:uppercase;">CENTRAL RESEARCH LABS</div>
+          <div style="font-size:1.1rem;font-weight:800;color:#0f172a;margin-top:2px;" id="qrTagItemName">Digital Multimeter</div>
+          <div style="font-size:0.8rem;color:#475569;margin-top:2px;">Model: <strong id="qrTagModel">Fluke 87V</strong></div>
+          <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">Loc: <span id="qrTagLocation">Room 201 - Bench B2</span></div>
+          <div style="margin-top:8px;">
+            <span id="qrTagCodeBadge" style="background:#0f172a;color:#ffffff;padding:3px 8px;border-radius:4px;font-family:monospace;font-size:0.85rem;font-weight:700;">EQ-EL-001</span>
+          </div>
+        </div>
+        <div style="text-align:center;">
+          <div id="qrCodeCanvasWrap" style="background:#fff;padding:6px;border:1px solid #e2e8f0;border-radius:8px;display:inline-block;">
+            <div id="qrCodeTarget"></div>
+          </div>
+          <div style="font-size:0.65rem;color:#94a3b8;margin-top:4px;">Scan with Camera</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button type="button" class="btn btn-outline" onclick="closeQrModal()">Close</button>
+      <button type="button" class="btn btn-primary" onclick="printQrTagSticker()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Print Asset Sticker Tag
+      </button>
+    </div>
+  </div>
+</div><!-- /#qrCodeModal -->
+
+
+<!-- ════════ LIVE CAMERA QR & BARCODE SCANNER MODAL (PHASE 3) ════════ -->
+<div class="modal-overlay" id="qrScannerModal">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:540px;">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Live Camera Barcode / QR Scanner
+      </h3>
+      <button class="modal-close" onclick="closeQrScannerModal()">&times;</button>
+    </div>
+    <div class="modal-body" style="text-align:center;">
+      <p style="font-size:0.82rem;color:var(--clr-text-500);margin-bottom:12px;">Position the equipment QR sticker in front of your camera to identify the apparatus instantly.</p>
+
+      <!-- Video Scanner Container -->
+      <div id="scannerViewportWrap" style="position:relative;background:#000;border-radius:12px;overflow:hidden;min-height:280px;display:flex;align-items:center;justify-content:center;">
+        <div id="qr-reader" style="width:100%;max-width:440px;"></div>
+      </div>
+
+      <!-- Scanned Detection Result Box (Hidden Until Scan) -->
+      <div id="scannedResultCard" class="hidden" style="margin-top:14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;text-align:left;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:0.75rem;font-weight:700;color:#15803d;text-transform:uppercase;">✓ Asset Detected</span>
+          <span id="detectedCodeTag" style="font-family:monospace;font-size:0.8rem;background:#dcfce7;color:#166534;padding:2px 8px;border-radius:4px;font-weight:700;">EQ-EL-001</span>
+        </div>
+        <div id="detectedItemTitle" style="font-weight:800;font-size:1rem;color:#0f172a;margin-top:4px;">Digital Multimeter (Fluke 87V)</div>
+        <div id="detectedItemLoc" style="font-size:0.78rem;color:#475569;margin-top:2px;">Location: Room 201 - Bench B2 &bull; Available: 14 units</div>
+
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-issue" onclick="scannedAction('issue')" style="padding:6px 12px;font-size:0.8rem;">
+            Issue this Item
+          </button>
+          <button type="button" class="btn btn-return" onclick="scannedAction('return')" style="padding:6px 12px;font-size:0.8rem;">
+            Return this Item
+          </button>
+          <button type="button" class="btn btn-outline" onclick="scannedAction('specs')" style="padding:6px 12px;font-size:0.8rem;">
+            View Specs
+          </button>
+        </div>
+      </div>
+
+      <!-- Manual Code Input Fallback -->
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0;text-align:left;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:0.78rem;font-weight:600;color:#64748b;">Or enter Asset Tag manually:</span>
+          <a href="test_qr.html" target="_blank" style="font-size:0.75rem;font-weight:700;color:#15803d;text-decoration:none;">
+            🏷️ Open Test QR Codes Sheet ↗
+          </a>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="manualTagInput" class="form-input" placeholder="e.g. EQ-EL-001" style="font-family:monospace;" />
+          <button type="button" class="btn btn-outline" onclick="handleManualTagLookup()">Lookup</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
+      <a href="test_qr.html" target="_blank" class="btn btn-outline" style="font-size:0.8rem;text-decoration:none;border-color:#15803d;color:#15803d;">
+        📄 Open Test QR Sheet
+      </a>
+      <button type="button" class="btn btn-outline" onclick="closeQrScannerModal()">Close Scanner</button>
+    </div>
+  </div>
+</div><!-- /#qrScannerModal -->
+
+
+<!-- ════════ NEW RESERVATION MODAL (PHASE 3) ════════ -->
+<div class="modal-overlay" id="newReservationModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+        </svg>
+        Book Laboratory Equipment Slot
+      </h3>
+      <button class="modal-close" onclick="closeNewReservationModal()">&times;</button>
+    </div>
+    <form id="reservationForm" onsubmit="submitNewReservation(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="resItemSelect">Select Apparatus / Equipment <span>*</span></label>
+          <select id="resItemSelect" class="form-select" onchange="onResItemChange()" required>
+            <option value="">— Select Equipment —</option>
+          </select>
+          <div id="resAvailHint" style="font-size:0.75rem;color:var(--clr-text-500);margin-top:4px;"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="resStudentName">Student / Researcher Name <span>*</span></label>
+            <input type="text" id="resStudentName" class="form-input" placeholder="e.g. Aarav Patel" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="resStudentId">Roll No / Student ID <span>*</span></label>
+            <input type="text" id="resStudentId" class="form-input" placeholder="e.g. STU-2024-042" required />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="resStudentDept">Department</label>
+            <input type="text" id="resStudentDept" class="form-input" placeholder="e.g. Electronics &amp; Comm." value="Engineering" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="resStudentEmail">Email Address (For Confirmation)</label>
+            <input type="email" id="resStudentEmail" class="form-input" placeholder="e.g. student@college.edu" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="resDate">Reservation Date <span>*</span></label>
+            <input type="date" id="resDate" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="resTimeSlot">Time Slot <span>*</span></label>
+            <select id="resTimeSlot" class="form-select">
+              <option value="09:00 AM - 12:00 PM">09:00 AM - 12:00 PM (Morning Slot)</option>
+              <option value="12:00 PM - 02:00 PM">12:00 PM - 02:00 PM (Afternoon Slot)</option>
+              <option value="02:00 PM - 05:00 PM" selected>02:00 PM - 05:00 PM (Evening Slot)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="resQty">Quantity <span>*</span></label>
+            <input type="number" id="resQty" class="form-input" min="1" value="1" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="resPurpose">Lab Practical / Research Purpose</label>
+          <input type="text" id="resPurpose" class="form-input" placeholder="e.g. Semester 4 Signal Processing Practical Exam" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeNewReservationModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="resSubmitBtn">Submit Reservation</button>
+      </div>
+    </form>
+  </div>
+</div><!-- /#newReservationModal -->
+
+
+<!-- ════════ NEW LAB TRANSFER MODAL (PHASE 3) ════════ -->
+<div class="modal-overlay" id="newTransferModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+        </svg>
+        Inter-Laboratory Equipment Transfer
+      </h3>
+      <button class="modal-close" onclick="closeNewTransferModal()">&times;</button>
+    </div>
+    <form id="transferForm" onsubmit="submitNewTransfer(event)">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="trfItemSelect">Select Equipment Item <span>*</span></label>
+          <select id="trfItemSelect" class="form-select" onchange="onTrfItemChange()" required>
+            <option value="">— Select Equipment —</option>
+          </select>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="trfFromLocation">Current / Origin Room</label>
+            <input type="text" id="trfFromLocation" class="form-input" readonly style="background:#f8fafc;" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="trfToLocation">Destination Lab / Room <span>*</span></label>
+            <input type="text" id="trfToLocation" class="form-input" placeholder="e.g. Physics Lab - Room 102" required />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="trfQty">Quantity to Transfer <span>*</span></label>
+            <input type="number" id="trfQty" class="form-input" min="1" value="1" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="trfDate">Transfer Date <span>*</span></label>
+            <input type="date" id="trfDate" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="trfRequestedBy">Requested By <span>*</span></label>
+            <input type="text" id="trfRequestedBy" class="form-input" placeholder="e.g. Dr. Ramesh Sharma" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="trfNotes">Transfer Reason / Custody Notes</label>
+          <input type="text" id="trfNotes" class="form-input" placeholder="e.g. Joint inter-departmental laboratory practicals" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeNewTransferModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="trfSubmitBtn">Dispatch Transfer</button>
+      </div>
+    </form>
+  </div>
+</div><!-- /#newTransferModal -->
+
+
+<!-- ════════ VENDOR MODAL (PHASE 3) ════════ -->
+<div class="modal-overlay" id="vendorModal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3 id="vendorModalTitle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        Add Equipment Supplier / Vendor
+      </h3>
+      <button class="modal-close" onclick="closeVendorModal()">&times;</button>
+    </div>
+    <form id="vendorForm" onsubmit="submitVendorForm(event)">
+      <input type="hidden" id="vendorFormId" />
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="vName">Company / Supplier Name <span>*</span></label>
+            <input type="text" id="vName" class="form-input" placeholder="e.g. Fluke Precision Instruments" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vContact">Contact Person</label>
+            <input type="text" id="vContact" class="form-input" placeholder="e.g. Rajesh Gupta" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="vEmail">Sales / Support Email</label>
+            <input type="email" id="vEmail" class="form-input" placeholder="e.g. sales@vendor.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vPhone">Phone / Mobile</label>
+            <input type="text" id="vPhone" class="form-input" placeholder="e.g. +91 98201 44321" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="vAddress">Office Address</label>
+          <input type="text" id="vAddress" class="form-input" placeholder="e.g. Plot 42, Tech Zone, Bengaluru" />
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label" for="vCategories">Supplied Categories</label>
+            <input type="text" id="vCategories" class="form-input" placeholder="e.g. Electronics, Calibration, Tools" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="vRating">Vendor Rating (1–5)</label>
+            <input type="number" step="0.1" min="1" max="5" id="vRating" class="form-input" value="4.8" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeVendorModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="vSubmitBtn">Save Supplier</button>
+      </div>
+    </form>
+  </div>
+</div><!-- /#vendorModal -->
+
+
+<!-- ════════ OVERDUE BORROWER NOTICE MODAL (PHASE 3) ════════ -->
+<div class="modal-overlay" id="overdueNoticeModal">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:580px;">
+    <div class="modal-header">
+      <h3 style="color:#dc2626;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Automated Overdue Borrower Reminders
+      </h3>
+      <button class="modal-close" onclick="closeOverdueNoticeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.84rem;color:var(--clr-text-700);margin-bottom:12px;">
+        Institutional reminder generator for students and researchers with unreturned apparatus past due date:
+      </p>
+
+      <div id="overdueBorrowersList" style="max-height:140px;overflow-y:auto;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:0.8rem;">
+        <!-- Populated via JS -->
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="overdueMessageText">Notice Message Template</label>
+        <textarea id="overdueMessageText" class="form-input" rows="4" style="font-size:0.82rem;line-height:1.4;">URGENT NOTICE: According to Central Laboratory records, you have equipment on loan that has exceeded its scheduled return date. Please return the item(s) to the Lab In-Charge immediately to avoid suspension of borrowing privileges.</textarea>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button type="button" class="btn btn-outline" onclick="copyOverdueNotice()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy Notice
+      </button>
+      <button type="button" class="btn btn-primary" onclick="simulateSendOverdueNotices()" style="background:#dc2626;border-color:#dc2626;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send Automated Email Notices
+      </button>
+    </div>
+  </div>
+</div><!-- /#overdueNoticeModal -->
+
+
 <!-- ════════ TOAST NOTIFICATIONS ════════ -->
 <div class="toast-container" id="toastContainer"></div>
 
 
 <!-- Custom Scripts -->
-<script src="script.js?v=2.2"></script>
+<script src="script.js?v=3.2"></script>
 </body>
 </html>

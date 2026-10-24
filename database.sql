@@ -154,20 +154,113 @@ END$$
 DELIMITER ;
 
 -- ============================================================
--- Table: users (Admin & Staff Authentication)
+-- Table: users (Admin, Staff & Student Authentication)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `users` (
-  `id`         INT(11)      NOT NULL AUTO_INCREMENT,
-  `username`   VARCHAR(50)  NOT NULL UNIQUE,
-  `password`   VARCHAR(255) NOT NULL,
-  `full_name`  VARCHAR(100) NOT NULL,
-  `role`       VARCHAR(50)  NOT NULL DEFAULT 'Administrator',
-  `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id`          INT(11)      NOT NULL AUTO_INCREMENT,
+  `username`    VARCHAR(50)  NOT NULL UNIQUE,
+  `password`    VARCHAR(255) NOT NULL,
+  `full_name`   VARCHAR(100) NOT NULL,
+  `role`        VARCHAR(50)  NOT NULL DEFAULT 'Administrator',
+  `student_id`  VARCHAR(50)  DEFAULT NULL,
+  `department`  VARCHAR(100) DEFAULT NULL,
+  `created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Default Admin User (username: admin, password: admin123)
-INSERT INTO `users` (`username`, `password`, `full_name`, `role`)
-VALUES ('admin', '$2y$10$FIaIwAiqrEZFbNYXosWZZ.A08HSxHxOBR.ywYmbtGM7AQsuNHlUme', 'Lab In-Charge', 'Administrator')
+-- Phase 3 Default Users (admin/admin123, assistant/assist123, student/student123)
+INSERT INTO `users` (`username`, `password`, `full_name`, `role`, `student_id`, `department`)
+VALUES 
+  ('admin', '$2y$10$FIaIwAiqrEZFbNYXosWZZ.A08HSxHxOBR.ywYmbtGM7AQsuNHlUme', 'Lab In-Charge', 'Administrator', NULL, 'Laboratory Administration'),
+  ('assistant', '$2y$10$0Q56u0oKk37g71e1kQnB1.GvPqN6B8GjSvh6LzJ7lF4b9m0cO3oVy', 'Kiran Kumar', 'Lab Assistant', NULL, 'Central Research Labs'),
+  ('student', '$2y$10$Z3U6R7V0H5nL8k2eY1wTse7PqO8N5BjRvh9LzM7lF1b8m2cO4oWy', 'Sneha Kulkarni', 'Student', 'STU-2024-042', 'Electronics & Comm.')
 ON DUPLICATE KEY UPDATE `password` = VALUES(`password`), `full_name` = VALUES(`full_name`);
+
+-- ============================================================
+-- Table: reservations (Phase 3: Student Online Slot Bookings)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `reservations` (
+  `id`               INT(11) NOT NULL AUTO_INCREMENT,
+  `item_id`          INT(11) NOT NULL,
+  `student_name`    VARCHAR(100) NOT NULL,
+  `student_id`      VARCHAR(50)  NOT NULL,
+  `department`      VARCHAR(100) DEFAULT 'Engineering',
+  `email`           VARCHAR(120) DEFAULT NULL,
+  `reservation_date`DATE NOT NULL,
+  `time_slot`       VARCHAR(50) NOT NULL,
+  `quantity`         INT(11) NOT NULL DEFAULT 1,
+  `purpose`          VARCHAR(255) DEFAULT NULL,
+  `status`           ENUM('Pending','Approved','Issued','Rejected','Cancelled') NOT NULL DEFAULT 'Pending',
+  `loan_id`          INT(11) DEFAULT NULL,
+  `created_at`       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_res_status` (`status`),
+  FOREIGN KEY (`item_id`) REFERENCES `inventory_items`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- Table: lab_transfers (Phase 3: Multi-Lab Inter-Room Transfers)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `lab_transfers` (
+  `id`            INT(11) NOT NULL AUTO_INCREMENT,
+  `transfer_no`   VARCHAR(50) NOT NULL UNIQUE,
+  `item_id`       INT(11) NOT NULL,
+  `from_location` VARCHAR(100) NOT NULL,
+  `to_location`   VARCHAR(100) NOT NULL,
+  `quantity`      INT(11) NOT NULL DEFAULT 1,
+  `requested_by`  VARCHAR(100) NOT NULL,
+  `transfer_date` DATE NOT NULL,
+  `status`        ENUM('Pending','Dispatched','Received','Cancelled') NOT NULL DEFAULT 'Pending',
+  `received_by`   VARCHAR(100) DEFAULT NULL,
+  `notes`         VARCHAR(255) DEFAULT NULL,
+  `created_at`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_trf_status` (`status`),
+  FOREIGN KEY (`item_id`) REFERENCES `inventory_items`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- Table: vendors (Phase 3: Suppliers Directory & Procurement)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `vendors` (
+  `id`                  INT(11) NOT NULL AUTO_INCREMENT,
+  `vendor_name`         VARCHAR(150) NOT NULL UNIQUE,
+  `contact_person`      VARCHAR(100) DEFAULT NULL,
+  `email`               VARCHAR(120) DEFAULT NULL,
+  `phone`               VARCHAR(50)  DEFAULT NULL,
+  `address`             TEXT         DEFAULT NULL,
+  `categories_supplied` VARCHAR(255) DEFAULT NULL,
+  `rating`              DECIMAL(2,1) DEFAULT 4.8,
+  `created_at`          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- Table: audit_logs (Phase 3: Security & Activity Audit Trail)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `audit_logs` (
+  `id`          INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id`     INT(11) DEFAULT NULL,
+  `user_name`   VARCHAR(100) NOT NULL DEFAULT 'System Admin',
+  `user_role`   VARCHAR(50) NOT NULL DEFAULT 'Administrator',
+  `action`      VARCHAR(50) NOT NULL,
+  `item_id`     INT(11) DEFAULT NULL,
+  `item_name`   VARCHAR(150) DEFAULT NULL,
+  `details`     TEXT NOT NULL,
+  `ip_address`  VARCHAR(50) DEFAULT '127.0.0.1',
+  `created_at`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `idx_audit_action` (`action`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Sample Phase 3 Seed Data
+INSERT INTO `vendors` (`vendor_name`, `contact_person`, `email`, `phone`, `address`, `categories_supplied`, `rating`)
+VALUES
+  ('Fluke Precision Instruments', 'Rajesh Gupta', 'sales@fluke-india.com', '+91 98201 44321', 'Plot 42, Electronics City, Bengaluru', 'Electronics, Calibration', 4.9),
+  ('Borosil Glass & Scientific', 'Meera Nambiar', 'support@borosil-scientific.in', '+91 94481 90872', '14 Industrial Area, Mumbai', 'Glassware, Volumetrics', 4.8),
+  ('Rigol Technologies Inc.', 'Amitabh Sengupta', 'sales@rigoltech.co.in', '+91 97112 33451', 'Sector 62, Noida, NCR', 'Electronics, RF Testing', 4.7),
+  ('Sigma-Aldrich Chemical Corp', 'Dr. Sunita Rao', 'orders@sigma-reagents.com', '+91 80234 56789', 'Whitefield Research Park, Bengaluru', 'Chemicals', 4.9),
+  ('Mitutoyo Metrology Lab', 'Vikram Chawla', 'precision@mitutoyo-tools.in', '+91 99882 11223', 'Peenya Industrial Estate, Bengaluru', 'Tools, Metrology', 4.8)
+ON DUPLICATE KEY UPDATE `contact_person` = VALUES(`contact_person`);
+
 

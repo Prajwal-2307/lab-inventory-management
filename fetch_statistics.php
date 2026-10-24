@@ -120,24 +120,57 @@ while ($row = $result_top->fetch_assoc()) {
     $top_equipment[] = $row;
 }
 
+// ── Query 8: Phase 3 Stats (Reservations, Transfers, Vendors) ────────────────
+$res_stats = $conn->query("
+    SELECT 
+        COUNT(*) AS total_reservations,
+        SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) AS pending_reservations,
+        SUM(CASE WHEN status = 'Approved' THEN 1 ELSE 0 END) AS approved_reservations
+    FROM reservations
+")->fetch_assoc();
+
+$trf_stats = $conn->query("
+    SELECT 
+        COUNT(*) AS total_transfers,
+        SUM(CASE WHEN status IN ('Pending', 'Dispatched') THEN 1 ELSE 0 END) AS active_transfers
+    FROM lab_transfers
+")->fetch_assoc();
+
+$vend_stats = $conn->query("
+    SELECT 
+        COUNT(*) AS total_vendors
+    FROM vendors
+")->fetch_assoc();
+
+$warr_stats = $conn->query("
+    SELECT 
+        COUNT(*) AS warranty_expiring_count
+    FROM inventory_items
+    WHERE warranty_expiry IS NOT NULL AND warranty_expiry BETWEEN CURRENT_DATE AND DATE_ADD(CURRENT_DATE, INTERVAL 30 DAY)
+")->fetch_assoc();
+
 $conn->close();
 
 echo json_encode([
-    'success'           => true,
-    'total_items'       => (int)($stats['total_items']       ?? 0),
-    'total_units'       => (int)($stats['total_units']       ?? 0),
-    'available_items'   => (int)($stats['available_items']   ?? 0),
-    'issued_items'      => (int)($stats['issued_items']      ?? 0),
-    'low_stock'         => (int)($stats['low_stock']         ?? 0),
-    'out_of_stock'      => (int)($stats['out_of_stock']      ?? 0),
-    'under_maintenance' => (int)($stats['under_maintenance'] ?? 0),
-    'active_loans'      => (int)($loan_stats['active_loans']   ?? 0),
-    'overdue_loans'     => (int)($loan_stats['overdue_loans']  ?? 0),
-    'returned_loans'    => (int)($loan_stats['returned_loans'] ?? 0),
-    'maint_in_progress' => (int)($maint_stats['maint_in_progress'] ?? 0),
-    'categories'        => $categories,
-    'low_stock_items'   => $low_stock_items,
-    'overdue_items'     => $overdue_items,
-    'top_equipment'     => $top_equipment,
+    'success'               => true,
+    'total_items'           => (int)($stats['total_items']       ?? 0),
+    'total_units'           => (int)($stats['total_units']       ?? 0),
+    'available_items'       => (int)($stats['available_items']   ?? 0),
+    'issued_items'          => (int)($stats['issued_items']      ?? 0),
+    'low_stock'             => (int)($stats['low_stock']         ?? 0),
+    'out_of_stock'          => (int)($stats['out_of_stock']      ?? 0),
+    'under_maintenance'     => (int)($stats['under_maintenance'] ?? 0),
+    'active_loans'          => (int)($loan_stats['active_loans']   ?? 0),
+    'overdue_loans'         => (int)($loan_stats['overdue_loans']  ?? 0),
+    'returned_loans'        => (int)($loan_stats['returned_loans'] ?? 0),
+    'maint_in_progress'     => (int)($maint_stats['maint_in_progress'] ?? 0),
+    'pending_reservations'  => (int)($res_stats['pending_reservations'] ?? 0),
+    'active_transfers'      => (int)($trf_stats['active_transfers'] ?? 0),
+    'total_vendors'         => (int)($vend_stats['total_vendors'] ?? 0),
+    'warranty_expiring_count'=> (int)($warr_stats['warranty_expiring_count'] ?? 0),
+    'categories'            => $categories,
+    'low_stock_items'       => $low_stock_items,
+    'overdue_items'         => $overdue_items,
+    'top_equipment'         => $top_equipment,
 ]);
 ?>

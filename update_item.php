@@ -20,6 +20,10 @@ require_once 'db.php';
 $raw = file_get_contents('php://input');
 $input = (!empty($raw)) ? (json_decode($raw, true) ?? []) : $_POST;
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $id = isset($input['id']) ? (int)$input['id'] : 0;
 if ($id <= 0) {
     send_json(false, 'Invalid item ID.');
@@ -37,15 +41,19 @@ if (!$current) {
 }
 
 // ── Extract & Validate ────────────────────────────────────────────────────────
-$item_name      = isset($input['item_name'])      ? sanitize($input['item_name'])      : $current['item_name'];
-$item_code      = isset($input['item_code'])      ? sanitize($input['item_code'])      : $current['item_code'];
-$model_no       = isset($input['model_no'])       ? sanitize($input['model_no'])       : $current['model_no'];
-$category       = isset($input['category'])       ? sanitize($input['category'])       : $current['category'];
-$location       = isset($input['location'])       ? sanitize($input['location'])       : $current['location'];
-$unit           = isset($input['unit'])           ? sanitize($input['unit'])           : $current['unit'];
-$item_condition = isset($input['item_condition']) ? sanitize($input['item_condition']) : $current['item_condition'];
-$total_qty      = isset($input['total_quantity']) ? (int)$input['total_quantity']      : (int)$current['total_quantity'];
-$min_threshold  = isset($input['min_threshold'])  ? (int)$input['min_threshold']       : (int)$current['min_threshold'];
+$item_name       = isset($input['item_name'])       ? sanitize($input['item_name'])       : $current['item_name'];
+$item_code       = isset($input['item_code'])       ? sanitize($input['item_code'])       : $current['item_code'];
+$model_no        = isset($input['model_no'])        ? sanitize($input['model_no'])        : $current['model_no'];
+$category        = isset($input['category'])        ? sanitize($input['category'])        : $current['category'];
+$location        = isset($input['location'])        ? sanitize($input['location'])        : $current['location'];
+$unit            = isset($input['unit'])            ? sanitize($input['unit'])            : $current['unit'];
+$item_condition  = isset($input['item_condition'])  ? sanitize($input['item_condition'])  : $current['item_condition'];
+$total_qty       = isset($input['total_quantity'])  ? (int)$input['total_quantity']       : (int)$current['total_quantity'];
+$min_threshold   = isset($input['min_threshold'])   ? (int)$input['min_threshold']        : (int)$current['min_threshold'];
+$purchase_price  = isset($input['purchase_price'])  ? (float)$input['purchase_price']     : (float)$current['purchase_price'];
+$purchase_date   = !empty($input['purchase_date'])  ? sanitize($input['purchase_date'])   : $current['purchase_date'];
+$warranty_expiry = !empty($input['warranty_expiry'])? sanitize($input['warranty_expiry']) : $current['warranty_expiry'];
+$vendor_name     = isset($input['vendor_name'])     ? sanitize($input['vendor_name'])     : $current['vendor_name'];
 
 if ($item_name === '') {
     send_json(false, 'Item name cannot be empty.');
@@ -68,7 +76,8 @@ if ($available_qty <= 0) {
 $sql = "UPDATE inventory_items
         SET item_name = ?, item_code = ?, model_no = ?, category = ?,
             location = ?, unit = ?, total_quantity = ?, available_quantity = ?,
-            status = ?, item_condition = ?, min_threshold = ?
+            status = ?, item_condition = ?, min_threshold = ?,
+            purchase_price = ?, purchase_date = ?, warranty_expiry = ?, vendor_name = ?
         WHERE id = ?";
 
 $stmt = $conn->prepare($sql);
@@ -76,7 +85,7 @@ if (!$stmt) {
     send_json(false, 'Database error: ' . $conn->error);
 }
 
-$stmt->bind_param('ssssssiissii',
+$stmt->bind_param('ssssssiissidsssi',
     $item_name,
     $item_code,
     $model_no,
@@ -88,12 +97,20 @@ $stmt->bind_param('ssssssiissii',
     $status,
     $item_condition,
     $min_threshold,
+    $purchase_price,
+    $purchase_date,
+    $warranty_expiry,
+    $vendor_name,
     $id
 );
 
 if ($stmt->execute()) {
     $stmt->close();
-    $conn->close();
+
+    $activeUser = $_SESSION['full_name'] ?? 'Lab In-Charge';
+    $activeRole = $_SESSION['user_role'] ?? 'Administrator';
+    log_audit($conn, $activeUser, $activeRole, 'ITEM_UPDATED', $item_name, "Updated equipment details for [$item_code] ($item_name)");
+
     send_json(true, "Equipment '{$item_name}' updated successfully!", [
         'id'            => $id,
         'item_name'     => $item_name,
@@ -105,7 +122,6 @@ if ($stmt->execute()) {
 } else {
     $err = $stmt->error;
     $stmt->close();
-    $conn->close();
     send_json(false, 'Failed to update record: ' . $err);
 }
 ?>

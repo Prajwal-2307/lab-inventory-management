@@ -135,7 +135,18 @@ if ($method === 'POST') {
             $conn->query("UPDATE inventory_items SET item_condition = 'Under Repair' WHERE id = {$item_id}");
         }
 
-        $conn->close();
+        // Fetch item name for audit
+        $nameRes = $conn->query("SELECT item_name FROM inventory_items WHERE id = {$item_id}");
+        $itemName = ($nameRes && $r = $nameRes->fetch_assoc()) ? $r['item_name'] : "Item #$item_id";
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $activeUser = $_SESSION['full_name'] ?? 'Lab In-Charge';
+        $activeRole = $_SESSION['user_role'] ?? 'Lab Assistant';
+        log_audit($conn, $activeUser, $activeRole, 'MAINTENANCE_CREATED', $itemName, 
+            "Created maintenance ticket #$log_id ($maintenance_type) assigned to $technician_name");
+
         send_json(true, "Maintenance ticket #{$log_id} created successfully!", ['log_id' => $log_id]);
     }
 
@@ -149,8 +160,8 @@ if ($method === 'POST') {
             send_json(false, 'Invalid maintenance ticket ID.');
         }
 
-        // Fetch item ID
-        $fetch_stmt = $conn->prepare('SELECT item_id FROM maintenance_log WHERE id = ? LIMIT 1');
+        // Fetch item ID and name
+        $fetch_stmt = $conn->prepare('SELECT m.item_id, i.item_name FROM maintenance_log m JOIN inventory_items i ON m.item_id = i.id WHERE m.id = ? LIMIT 1');
         $fetch_stmt->bind_param('i', $id);
         $fetch_stmt->execute();
         $res = $fetch_stmt->get_result();
@@ -160,6 +171,7 @@ if ($method === 'POST') {
         }
         $row = $res->fetch_assoc();
         $item_id = (int)$row['item_id'];
+        $itemName = $row['item_name'];
         $fetch_stmt->close();
 
         if ($cost !== null) {
@@ -188,7 +200,14 @@ if ($method === 'POST') {
         // Restore equipment condition to 'Good'
         $conn->query("UPDATE inventory_items SET item_condition = 'Good' WHERE id = {$item_id}");
 
-        $conn->close();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $activeUser = $_SESSION['full_name'] ?? 'Lab In-Charge';
+        $activeRole = $_SESSION['user_role'] ?? 'Lab Assistant';
+        log_audit($conn, $activeUser, $activeRole, 'MAINTENANCE_COMPLETED', $itemName, 
+            "Completed maintenance ticket #$id on $completion_date. Condition restored to Good.");
+
         send_json(true, "Maintenance ticket #{$id} marked as Completed!", ['id' => $id]);
     }
 

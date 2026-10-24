@@ -108,7 +108,13 @@ $stmt_log->execute();
 $log_id = $conn->insert_id;
 $stmt_log->close();
 
-$conn->close();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$activeUser = $_SESSION['full_name'] ?? 'Lab In-Charge';
+$activeRole = $_SESSION['user_role'] ?? 'Lab Assistant';
+log_audit($conn, $activeUser, $activeRole, 'ITEM_ISSUED', $item['item_name'], 
+    "Issued {$issued_qty} unit(s) to {$borrower_name} ({$borrower_id}) - Due: {$due_date}");
 
 send_json(true, "Issued {$issued_qty} unit(s) of '{$item['item_name']}' to {$borrower_name} successfully!", [
     'loan_id'           => $log_id,

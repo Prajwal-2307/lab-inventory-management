@@ -59,12 +59,19 @@ $stmt_del->bind_param('i', $id);
 
 if ($stmt_del->execute()) {
     $stmt_del->close();
-    $conn->close();
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    $activeUser = $_SESSION['full_name'] ?? 'Lab In-Charge';
+    $activeRole = $_SESSION['user_role'] ?? 'Administrator';
+    log_audit($conn, $activeUser, $activeRole, 'ITEM_DELETED', $item['item_name'], 
+        "Deleted equipment item '{$item['item_name']}' [ID: $id]");
+
     send_json(true, "'{$item['item_name']}' has been removed from inventory.");
 } else {
     $err = $stmt_del->error;
     $stmt_del->close();
-    $conn->close();
     send_json(false, 'Failed to delete item: ' . $err);
 }
 ?>

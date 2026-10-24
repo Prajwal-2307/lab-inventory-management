@@ -16,42 +16,76 @@
    STATE MANAGEMENT
    ════════════════════════════════════════════════════════════════ */
 const State = {
-  items:              [],        // all equipment items from server
-  filteredItems:      [],        // filtered item list
-  stats:              {},        // dashboard & KPI statistics
-  categories:         [],        // category breakdown data
-  loans:              [],        // issue & return loan records
-  maintenanceRecords: [],        // maintenance records
-  currentReports:     null,      // active report dataset
-  currentSection:     'dashboard',
-  currentIssueTab:    'active',  // 'active' or 'history'
-  isSidebarCollapsed: false,
-  isMobile:           false,
-  activeFilter:       'all',     // category filter
-  activeConditionFilter: 'all',  // condition filter
-  activeStatusFilter: 'all',     // status filter
-  activeLoanFilter:   'all',     // loan status filter
+  items:                [],        // all equipment items from server
+  filteredItems:        [],        // filtered item list
+  stats:                {},        // dashboard & KPI statistics
+  categories:           [],        // category breakdown data
+  loans:                [],        // issue & return loan records
+  maintenanceRecords:   [],        // maintenance records
+  reservations:         [],        // phase 3: student reservations
+  filteredReservations: [],
+  transfers:            [],        // phase 3: inter-lab equipment transfers
+  filteredTransfers:    [],
+  vendors:              [],        // phase 3: vendors & procurement
+  filteredVendors:      [],
+  auditLogs:            [],        // phase 3: security & activity audit trail
+  filteredAuditLogs:    [],
+  currentUser:          null,      // phase 3: logged in user profile & role
+  currentReports:       null,      // active report dataset
+  currentSection:       'dashboard',
+  currentIssueTab:      'active',  // 'active' or 'history'
+  isSidebarCollapsed:   false,
+  isMobile:             false,
+  activeFilter:         'all',     // category filter
+  activeConditionFilter:'all',     // condition filter
+  activeStatusFilter:   'all',     // status filter
+  activeLoanFilter:     'all',     // loan status filter
+  activeResFilter:      'All',     // reservation filter
+  activeTrfFilter:      'All',     // transfer filter
+  activeAuditFilter:    'All',     // audit action filter
+  qrScanner:            null,      // Html5Qrcode instance
+  lastScannedItem:      null,      // last detected item from QR
   charts: {
     category:     null,
     stock:        null,
     catDetail:    null,
     reportChart1: null,
     reportChart2: null,
+  },
+  settings: {
+    orgName:           'Central Engineering College',
+    deptName:          'Department of Electronics & Communication',
+    labName:           'Central Hardware & Research Lab',
+    roomNo:            'Room 201 - Science Block',
+    inchargeName:      'Prof. H. R. Sharma',
+    inchargeEmail:     'lab-incharge@univ.edu',
+    loanDays:          14,
+    maxItems:          2,
+    minStock:          3,
+    noticeDays:        2,
+    allowWeekend:      true,
+    autoOverdueBanner: true,
+    currency:          '₹',
+    dateFormat:        'YYYY-MM-DD',
+    pageSize:          25,
+    theme:             'forest',
+    scanBeep:          true,
+    showQuickStats:    true,
   }
 };
 
 /* ── Fallback Dataset for Standalone/Local File & Offline Mode ───── */
 const FALLBACK_ITEMS = [
-  { id: 1,  item_code: 'EQ-EL-001', item_name: 'Digital Multimeter',   model_no: 'Fluke 87V',                  category: 'Electronics', location: 'Room 201 - Bench B2',          unit: 'Units',   total_quantity: 20, issued_quantity: 6,  available_quantity: 14, status: 'Available', item_condition: 'Good',              min_threshold: 3, created_at: '2024-01-10 10:00:00' },
-  { id: 2,  item_code: 'GW-CH-002', item_name: 'Beaker Set (500 mL)',  model_no: 'Borosil Class A',            category: 'Glassware',   location: 'Cabinet C - Shelf 1',          unit: 'Sets',    total_quantity: 30, issued_quantity: 8,  available_quantity: 22, status: 'Available', item_condition: 'Good',              min_threshold: 5, created_at: '2024-01-11 11:30:00' },
-  { id: 3,  item_code: 'EQ-EL-003', item_name: 'Soldering Iron',       model_no: 'Weller WLC100',              category: 'Electronics', location: 'Room 201 - Workstation 4',     unit: 'Units',   total_quantity: 15, issued_quantity: 13, available_quantity: 2,  status: 'Low Stock', item_condition: 'Fair',              min_threshold: 3, created_at: '2024-01-12 09:15:00' },
-  { id: 4,  item_code: 'CH-RG-004', item_name: 'Copper Sulphate',      model_no: 'Analytical Grade 99%',       category: 'Chemicals',   location: 'Chemical Storage - Cabinet K', unit: 'Bottles', total_quantity: 50, issued_quantity: 0,  available_quantity: 50, status: 'Available', item_condition: 'Good',              min_threshold: 10, created_at: '2024-01-12 14:00:00' },
-  { id: 5,  item_code: 'EQ-EL-005', item_name: 'Oscilloscope (DSO)',   model_no: 'Rigol DS1054Z 50MHz',        category: 'Electronics', location: 'Room 202 - Rack A3',           unit: 'Units',   total_quantity: 10, issued_quantity: 3,  available_quantity: 7,  status: 'Available', item_condition: 'Good',              min_threshold: 2, created_at: '2024-01-15 16:45:00' },
-  { id: 6,  item_code: 'GW-CH-006', item_name: 'Test Tube Stand',      model_no: 'Stainless Steel 24-well',    category: 'Glassware',   location: 'Cabinet C - Shelf 2',          unit: 'Units',   total_quantity: 25, issued_quantity: 4,  available_quantity: 21, status: 'Available', item_condition: 'Good',              min_threshold: 5, created_at: '2024-01-16 10:20:00' },
-  { id: 7,  item_code: 'TL-ME-007', item_name: 'Vernier Caliper',      model_no: 'Mitutoyo 150mm Digital',     category: 'Tools',       location: 'Tool Chest - Drawer 1',        unit: 'Units',   total_quantity: 18, issued_quantity: 6,  available_quantity: 12, status: 'Available', item_condition: 'Good',              min_threshold: 3, created_at: '2024-01-17 11:00:00' },
-  { id: 8,  item_code: 'GW-CH-008', item_name: 'Bunsen Burner',        model_no: 'Standard Gas Burner',        category: 'Glassware',   location: 'Room 105 - Gas Bench 3',       unit: 'Units',   total_quantity: 12, issued_quantity: 11, available_quantity: 1,  status: 'Low Stock', item_condition: 'Needs Maintenance', min_threshold: 3, created_at: '2024-01-18 13:10:00' },
-  { id: 9,  item_code: 'EQ-EL-009', item_name: 'Breadboard',           model_no: '830 Tie-Points Solderless',  category: 'Electronics', location: 'Room 201 - Bin 12',            unit: 'Pieces',  total_quantity: 40, issued_quantity: 10, available_quantity: 30, status: 'Available', item_condition: 'Good',              min_threshold: 8, created_at: '2024-01-19 15:30:00' },
-  { id: 10, item_code: 'CH-RG-010', item_name: 'Hydrochloric Acid',    model_no: '37% Reagent Grade',          category: 'Chemicals',   location: 'Acid Cabinet - Safe Room',     unit: 'Bottles', total_quantity: 8,  issued_quantity: 0,  available_quantity: 8,  status: 'Available', item_condition: 'Good',              min_threshold: 2, created_at: '2024-01-20 12:00:00' }
+  { id: 1,  item_code: 'EQ-EL-001', item_name: 'Digital Multimeter',   model_no: 'Fluke 87V',                  category: 'Electronics', location: 'Room 201 - Bench B2',          unit: 'Units',   total_quantity: 20, issued_quantity: 6,  available_quantity: 14, status: 'Available', item_condition: 'Good',              min_threshold: 3, purchase_price: 18500.00, purchase_date: '2023-08-10', warranty_expiry: '2026-08-10', vendor_name: 'Fluke Precision Instruments', created_at: '2024-01-10 10:00:00' },
+  { id: 2,  item_code: 'GW-CH-002', item_name: 'Beaker Set (500 mL)',  model_no: 'Borosil Class A',            category: 'Glassware',   location: 'Cabinet C - Shelf 1',          unit: 'Sets',    total_quantity: 30, issued_quantity: 8,  available_quantity: 22, status: 'Available', item_condition: 'Good',              min_threshold: 5, purchase_price: 1250.00,  purchase_date: '2023-10-15', warranty_expiry: '2025-10-15', vendor_name: 'Borosil Glass & Scientific', created_at: '2024-01-11 11:30:00' },
+  { id: 3,  item_code: 'EQ-EL-003', item_name: 'Soldering Iron',       model_no: 'Weller WLC100',              category: 'Electronics', location: 'Room 201 - Workstation 4',     unit: 'Units',   total_quantity: 15, issued_quantity: 13, available_quantity: 2,  status: 'Low Stock', item_condition: 'Fair',              min_threshold: 3, purchase_price: 4200.00,  purchase_date: '2023-11-20', warranty_expiry: '2025-05-20', vendor_name: 'Weller Tools India', created_at: '2024-01-12 09:15:00' },
+  { id: 4,  item_code: 'CH-RG-004', item_name: 'Copper Sulphate',      model_no: 'Analytical Grade 99%',       category: 'Chemicals',   location: 'Chemical Storage - Cabinet K', unit: 'Bottles', total_quantity: 50, issued_quantity: 0,  available_quantity: 50, status: 'Available', item_condition: 'Good',              min_threshold: 10, purchase_price: 850.00,   purchase_date: '2024-01-05', warranty_expiry: '2026-01-05', vendor_name: 'Sigma-Aldrich Chemical Corp', created_at: '2024-01-12 14:00:00' },
+  { id: 5,  item_code: 'EQ-EL-005', item_name: 'Oscilloscope (DSO)',   model_no: 'Rigol DS1054Z 50MHz',        category: 'Electronics', location: 'Room 202 - Rack A3',           unit: 'Units',   total_quantity: 10, issued_quantity: 3,  available_quantity: 7,  status: 'Available', item_condition: 'Good',              min_threshold: 2, purchase_price: 45000.00, purchase_date: '2023-04-12', warranty_expiry: '2026-04-12', vendor_name: 'Rigol Technologies Inc.', created_at: '2024-01-15 16:45:00' },
+  { id: 6,  item_code: 'GW-CH-006', item_name: 'Test Tube Stand',      model_no: 'Stainless Steel 24-well',    category: 'Glassware',   location: 'Cabinet C - Shelf 2',          unit: 'Units',   total_quantity: 25, issued_quantity: 4,  available_quantity: 21, status: 'Available', item_condition: 'Good',              min_threshold: 5, purchase_price: 650.00,   purchase_date: '2023-09-01', warranty_expiry: '2026-09-01', vendor_name: 'Borosil Glass & Scientific', created_at: '2024-01-16 10:20:00' },
+  { id: 7,  item_code: 'TL-ME-007', item_name: 'Vernier Caliper',      model_no: 'Mitutoyo 150mm Digital',     category: 'Tools',       location: 'Tool Chest - Drawer 1',        unit: 'Units',   total_quantity: 18, issued_quantity: 6,  available_quantity: 12, status: 'Available', item_condition: 'Good',              min_threshold: 3, purchase_price: 6800.00,  purchase_date: '2023-06-18', warranty_expiry: '2026-06-18', vendor_name: 'Mitutoyo Metrology Lab', created_at: '2024-01-17 11:00:00' },
+  { id: 8,  item_code: 'GW-CH-008', item_name: 'Bunsen Burner',        model_no: 'Standard Gas Burner',        category: 'Glassware',   location: 'Room 105 - Gas Bench 3',       unit: 'Units',   total_quantity: 12, issued_quantity: 11, available_quantity: 1,  status: 'Low Stock', item_condition: 'Needs Maintenance', min_threshold: 3, purchase_price: 1100.00,  purchase_date: '2023-02-10', warranty_expiry: '2025-02-10', vendor_name: 'Premier Scientific Suppliers', created_at: '2024-01-18 13:10:00' },
+  { id: 9,  item_code: 'EQ-EL-009', item_name: 'Breadboard',           model_no: '830 Tie-Points Solderless',  category: 'Electronics', location: 'Room 201 - Bin 12',            unit: 'Pieces',  total_quantity: 40, issued_quantity: 10, available_quantity: 30, status: 'Available', item_condition: 'Good',              min_threshold: 8, purchase_price: 320.00,   purchase_date: '2024-01-10', warranty_expiry: '2026-01-10', vendor_name: 'Weller Tools India', created_at: '2024-01-19 15:30:00' },
+  { id: 10, item_code: 'CH-RG-010', item_name: 'Hydrochloric Acid',    model_no: '37% Reagent Grade',          category: 'Chemicals',   location: 'Acid Cabinet - Safe Room',     unit: 'Bottles', total_quantity: 8,  issued_quantity: 0,  available_quantity: 8,  status: 'Available', item_condition: 'Good',              min_threshold: 2, purchase_price: 1450.00,  purchase_date: '2024-01-14', warranty_expiry: '2026-01-14', vendor_name: 'Sigma-Aldrich Chemical Corp', created_at: '2024-01-20 12:00:00' }
 ];
 
 const FALLBACK_LOANS = [
@@ -64,6 +98,32 @@ const FALLBACK_MAINTENANCE = [
   { id: 1, item_id: 8, item_name: 'Bunsen Burner',      item_code: 'GW-CH-008', maintenance_type: 'Repair',                 technician_name: 'Kiran Kumar (Lab Tech)', start_date: '2024-02-05', completion_date: null,         cost: 150.00, status: 'In Progress', notes: 'Gas nozzle leakage inspection and valve replacement' },
   { id: 2, item_id: 1, item_name: 'Digital Multimeter', item_code: 'EQ-EL-001', maintenance_type: 'Calibration',            technician_name: 'Precision Labs Inc.',    start_date: '2024-01-15', completion_date: '2024-01-17', cost: 350.00, status: 'Completed',   notes: 'Annual accuracy calibration and safety certification #CAL-9921' },
   { id: 3, item_id: 3, item_name: 'Soldering Iron',     item_code: 'EQ-EL-003', maintenance_type: 'Preventive Maintenance', technician_name: 'Kiran Kumar (Lab Tech)', start_date: '2024-01-22', completion_date: '2024-01-23', cost: 50.00,  status: 'Completed',   notes: 'Soldering tip replacement and thermal heating element test' }
+];
+
+const FALLBACK_RESERVATIONS = [
+  { id: 1, item_id: 5, item_name: 'Oscilloscope (DSO)', item_code: 'EQ-EL-005', category: 'Electronics', student_name: 'Sneha Kulkarni', student_id: 'STU-2024-102', department: 'Electrical Engg', email: 'sneha@college.edu', reservation_date: '2026-10-24', time_slot: '02:00 PM - 05:00 PM', quantity: 1, purpose: 'Fourier Transform wave analysis project', status: 'Pending', created_at: '2026-10-23 10:15:00' },
+  { id: 2, item_id: 1, item_name: 'Digital Multimeter', item_code: 'EQ-EL-001', category: 'Electronics', student_name: 'Rahul Deshmukh', student_id: 'STU-2024-077', department: 'Electronics & Comm.', email: 'rahul@college.edu', reservation_date: '2026-10-25', time_slot: '09:00 AM - 12:00 PM', quantity: 2, purpose: 'Embedded Systems ADC calibration lab', status: 'Approved', created_at: '2026-10-23 11:30:00' },
+  { id: 3, item_id: 7, item_name: 'Vernier Caliper', item_code: 'TL-ME-007', category: 'Tools', student_name: 'Aditya Joshi', student_id: 'STU-2024-031', department: 'Mechanical Engg', email: 'aditya@college.edu', reservation_date: '2026-10-22', time_slot: '12:00 PM - 02:00 PM', quantity: 1, purpose: 'Shaft tolerance measurement lab', status: 'Issued', created_at: '2026-10-22 09:00:00' }
+];
+
+const FALLBACK_TRANSFERS = [
+  { id: 1, transfer_no: 'TRF-2026-001', item_id: 5, item_name: 'Oscilloscope (DSO)', item_code: 'EQ-EL-005', from_location: 'Room 202 - Rack A3', to_location: 'Advanced Computing Lab - Room 305', quantity: 1, requested_by: 'Dr. Ramesh Sharma', transfer_date: '2026-10-23', status: 'Dispatched', notes: 'Required for joint sensor integration session', created_at: '2026-10-23 09:40:00' },
+  { id: 2, transfer_no: 'TRF-2026-002', item_id: 7, item_name: 'Vernier Caliper', item_code: 'TL-ME-007', from_location: 'Tool Chest - Drawer 1', to_location: 'Metrology Lab - Room 104', quantity: 2, requested_by: 'Prof. Anjali Mehta', transfer_date: '2026-10-22', status: 'Received', received_by: 'Kiran Kumar', notes: 'Routine dimensional inspection workshop', created_at: '2026-10-22 14:15:00' }
+];
+
+const FALLBACK_VENDORS = [
+  { id: 1, vendor_name: 'Fluke Precision Instruments', contact_person: 'Rajesh Gupta', email: 'sales@fluke-india.com', phone: '+91 98201 44321', address: 'Plot 42, Electronics City, Bengaluru', categories_supplied: 'Electronics, Calibration', rating: 4.9, supplied_items_count: 3 },
+  { id: 2, vendor_name: 'Borosil Glass & Scientific', contact_person: 'Meera Nambiar', email: 'support@borosil-scientific.in', phone: '+91 94481 90872', address: '14 Industrial Area, Mumbai', categories_supplied: 'Glassware, Volumetrics', rating: 4.8, supplied_items_count: 4 },
+  { id: 3, vendor_name: 'Rigol Technologies Inc.', contact_person: 'Amitabh Sengupta', email: 'sales@rigoltech.co.in', phone: '+91 97112 33451', address: 'Sector 62, Noida, NCR', categories_supplied: 'Electronics, RF & Signal Testing', rating: 4.7, supplied_items_count: 2 },
+  { id: 4, vendor_name: 'Sigma-Aldrich Chemical Corp', contact_person: 'Dr. Sunita Rao', email: 'orders@sigma-reagents.com', phone: '+91 80234 56789', address: 'Whitefield Research Park, Bengaluru', categories_supplied: 'Chemicals, High Purity Solvents', rating: 4.9, supplied_items_count: 5 },
+  { id: 5, vendor_name: 'Mitutoyo Metrology Lab', contact_person: 'Vikram Chawla', email: 'precision@mitutoyo-tools.in', phone: '+91 99882 11223', address: 'Peenya Industrial Estate, Bengaluru', categories_supplied: 'Tools, Precision Measurement', rating: 4.8, supplied_items_count: 2 }
+];
+
+const FALLBACK_AUDIT = [
+  { id: 1, user_id: 1, user_name: 'Lab In-Charge', user_role: 'Administrator', action: 'ITEM_CREATED', item_id: 1, item_name: 'Digital Multimeter', details: 'Registered new apparatus EQ-EL-001 (Qty: 20 Units, Price: ₹18500.00)', ip_address: '127.0.0.1', created_at: '2026-10-23 10:00:00' },
+  { id: 2, user_id: 2, user_name: 'Kiran Kumar', user_role: 'Lab Assistant', action: 'ITEM_ISSUED', item_id: 1, item_name: 'Digital Multimeter', details: 'Issued 1 unit to Aarav Patel (STU-2024-042) due 2026-11-06', ip_address: '127.0.0.1', created_at: '2026-10-23 10:30:00' },
+  { id: 3, user_id: 2, user_name: 'Kiran Kumar', user_role: 'Lab Assistant', action: 'TRANSFER_REQUEST', item_id: 5, item_name: 'Oscilloscope (DSO)', details: 'Dispatched 1 unit to Advanced Computing Lab - Room 305 (TRF-2026-001)', ip_address: '127.0.0.1', created_at: '2026-10-23 11:15:00' },
+  { id: 4, user_id: 3, user_name: 'Sneha Kulkarni', user_role: 'Student', action: 'RESERVATION_CREATED', item_id: 5, item_name: 'Oscilloscope (DSO)', details: 'Booked slot on 2026-10-24 02:00 PM - 05:00 PM for Signal Processing', ip_address: '127.0.0.1', created_at: '2026-10-23 12:00:00' }
 ];
 
 /* ════════════════════════════════════════════════════════════════
@@ -88,7 +148,11 @@ function navigate(sectionId, navEl) {
     inventory:   'Equipment & Inventory Management',
     categories:  'Domain Categories',
     issue:       'Equipment Issue & Return Circulation',
+    reservations:'Student Equipment Reservations',
+    transfers:   'Inter-Laboratory Equipment Transfers',
     maintenance: 'Equipment Maintenance & Health',
+    vendors:     'Vendors, Procurement & Warranties',
+    audit:       'Security & Activity Audit Trail',
     reports:     'Inventory Reports & Audit Analytics',
     settings:    'System Configuration & Preferences',
   };
@@ -107,10 +171,20 @@ function navigate(sectionId, navEl) {
     renderCatDetailChart();
   } else if (sectionId === 'issue') {
     loadLoans();
+  } else if (sectionId === 'reservations') {
+    loadReservations();
+  } else if (sectionId === 'transfers') {
+    loadTransfers();
   } else if (sectionId === 'maintenance') {
     loadMaintenance();
+  } else if (sectionId === 'vendors') {
+    loadVendors();
+  } else if (sectionId === 'audit') {
+    loadAuditLogs();
   } else if (sectionId === 'reports') {
     loadReports();
+  } else if (sectionId === 'settings') {
+    populateSettingsForm();
   }
 
   if (State.isMobile) {
@@ -180,6 +254,12 @@ function applyStatistics(data) {
 
   const maintBadge = document.getElementById('sidebarMaintCount');
   if (maintBadge) maintBadge.textContent = data.under_maintenance;
+
+  const resBadge = document.getElementById('sidebarResCount');
+  if (resBadge && data.pending_reservations !== undefined) resBadge.textContent = data.pending_reservations;
+
+  const trfBadge = document.getElementById('sidebarTrfCount');
+  if (trfBadge && data.active_transfers !== undefined) trfBadge.textContent = data.active_transfers;
 
   // Overdue Alert strip
   const overdueAlert = document.getElementById('overdueAlert');
@@ -346,20 +426,23 @@ function renderInventoryTable(items) {
       <td>${buildStatusBadge(item.status)}</td>
       <td>
         <div class="action-btns">
-          <button class="btn btn-issue btn-sm" onclick="openIssueModal(${item.id})"
+          <button class="btn btn-issue btn-sm staff-only" onclick="openIssueModal(${item.id})"
                   ${item.available_quantity <= 0 ? 'disabled' : ''} title="Issue this item">
             Issue
           </button>
-          <button class="btn-icon-action" onclick="openRestockModal(${item.id})" title="Restock / Add stock">
+          <button class="btn-icon-action" onclick="openQrModal(${item.id})" title="Print QR Asset Tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="btn-icon-action staff-only" onclick="openRestockModal(${item.id})" title="Restock / Add stock">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
-          <button class="btn-icon-action" onclick="openEditModal(${item.id})" title="Edit details">
+          <button class="btn-icon-action staff-only" onclick="openEditModal(${item.id})" title="Edit details">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </button>
           <button class="btn-icon-action" onclick="openViewModal(${item.id})" title="View specifications sheet">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
-          <button class="btn-icon-action danger" onclick="openDeleteModal(${item.id})" title="Delete record">
+          <button class="btn-icon-action danger admin-only" onclick="openDeleteModal(${item.id})" title="Delete record">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </button>
         </div>
@@ -433,7 +516,11 @@ async function submitAddItem(e) {
   const unit         = document.getElementById('inputUnit').value.trim() || 'Units';
   const qty          = parseInt(document.getElementById('inputQty').value, 10);
   const condition    = document.getElementById('inputCondition').value;
-  const minThreshold = parseInt(document.getElementById('inputMinThreshold').value, 10) || 3;
+  const minThreshold   = parseInt(document.getElementById('inputMinThreshold').value, 10) || 3;
+  const purchasePrice  = parseFloat(document.getElementById('inputPrice')?.value) || 0;
+  const purchaseDate   = document.getElementById('inputPurchaseDate')?.value || null;
+  const warrantyExpiry = document.getElementById('inputWarrantyExpiry')?.value || null;
+  const vendorName     = document.getElementById('inputVendorName')?.value.trim() || '';
 
   let valid = true;
   if (!itemName) {
@@ -464,7 +551,11 @@ async function submitAddItem(e) {
         unit,
         total_quantity: qty,
         item_condition: condition,
-        min_threshold: minThreshold
+        min_threshold: minThreshold,
+        purchase_price: purchasePrice,
+        purchase_date: purchaseDate,
+        warranty_expiry: warrantyExpiry,
+        vendor_name: vendorName
       }),
     });
     const data = await res.json();
@@ -504,6 +595,15 @@ function openEditModal(itemId) {
   document.getElementById('editCondition').value    = item.item_condition;
   document.getElementById('editMinThreshold').value = item.min_threshold;
 
+  const priceEl = document.getElementById('editPrice');
+  const pDateEl = document.getElementById('editPurchaseDate');
+  const wExpEl  = document.getElementById('editWarrantyExpiry');
+  const vNameEl = document.getElementById('editVendorName');
+  if (priceEl) priceEl.value = item.purchase_price || '';
+  if (pDateEl) pDateEl.value = item.purchase_date || '';
+  if (wExpEl)  wExpEl.value  = item.warranty_expiry || '';
+  if (vNameEl) vNameEl.value = item.vendor_name || '';
+
   document.getElementById('editModal').classList.add('open');
 }
 
@@ -514,16 +614,20 @@ function closeEditModal() {
 async function submitEditItem(e) {
   e.preventDefault();
 
-  const id           = parseInt(document.getElementById('editItemId').value, 10);
-  const itemName     = document.getElementById('editItemName').value.trim();
-  const itemCode     = document.getElementById('editItemCode').value.trim();
-  const modelNo      = document.getElementById('editModelNo').value.trim();
-  const category     = document.getElementById('editCategory').value;
-  const location     = document.getElementById('editLocation').value.trim();
-  const unit         = document.getElementById('editUnit').value.trim();
-  const totalQty     = parseInt(document.getElementById('editTotalQty').value, 10);
-  const condition    = document.getElementById('editCondition').value;
-  const minThreshold = parseInt(document.getElementById('editMinThreshold').value, 10);
+  const id             = parseInt(document.getElementById('editItemId').value, 10);
+  const itemName       = document.getElementById('editItemName').value.trim();
+  const itemCode       = document.getElementById('editItemCode').value.trim();
+  const modelNo        = document.getElementById('editModelNo').value.trim();
+  const category       = document.getElementById('editCategory').value;
+  const location       = document.getElementById('editLocation').value.trim();
+  const unit           = document.getElementById('editUnit').value.trim();
+  const totalQty       = parseInt(document.getElementById('editTotalQty').value, 10);
+  const condition      = document.getElementById('editCondition').value;
+  const minThreshold   = parseInt(document.getElementById('editMinThreshold').value, 10);
+  const purchasePrice  = parseFloat(document.getElementById('editPrice')?.value) || 0;
+  const purchaseDate   = document.getElementById('editPurchaseDate')?.value || null;
+  const warrantyExpiry = document.getElementById('editWarrantyExpiry')?.value || null;
+  const vendorName     = document.getElementById('editVendorName')?.value.trim() || '';
 
   const btn = document.getElementById('editSubmitBtn');
   btn.disabled = true;
@@ -543,7 +647,11 @@ async function submitEditItem(e) {
         unit,
         total_quantity: totalQty,
         item_condition: condition,
-        min_threshold: minThreshold
+        min_threshold: minThreshold,
+        purchase_price: purchasePrice,
+        purchase_date: purchaseDate,
+        warranty_expiry: warrantyExpiry,
+        vendor_name: vendorName
       })
     });
     const data = await res.json();
@@ -670,14 +778,34 @@ function openViewModal(itemId) {
         <div class="spec-title">Min Alert Threshold</div>
         <div class="spec-val">${item.min_threshold} units</div>
       </div>
+      <div class="spec-box">
+        <div class="spec-title">Purchase Price</div>
+        <div class="spec-val" style="color:#0f172a;font-weight:700;">₹ ${parseFloat(item.purchase_price || 0).toLocaleString('en-IN', {minimumFractionDigits:2})}</div>
+      </div>
+      <div class="spec-box">
+        <div class="spec-title">Supplier / Vendor</div>
+        <div class="spec-val">${escHtml(item.vendor_name || 'Standard Equipment Supply')}</div>
+      </div>
+      <div class="spec-box">
+        <div class="spec-title">Purchase Date</div>
+        <div class="spec-val">${item.purchase_date || 'N/A'}</div>
+      </div>
+      <div class="spec-box">
+        <div class="spec-title">Warranty Expiry</div>
+        <div class="spec-val">${item.warranty_expiry ? `${item.warranty_expiry}` : 'N/A'}</div>
+      </div>
     </div>
 
     <div style="margin-top:16px;">
       <h5 style="font-size:.85rem;color:#334155;margin-bottom:8px;">Quick Actions for this equipment:</h5>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-issue btn-sm" onclick="closeViewModal(); openIssueModal(${item.id});" ${item.available_quantity <= 0 ? 'disabled' : ''}>Issue Now</button>
-        <button class="btn btn-gold btn-sm" onclick="closeViewModal(); openRestockModal(${item.id});">Add Stock</button>
-        <button class="btn btn-outline btn-sm" onclick="closeViewModal(); openMaintModal(${item.id});">Schedule Maintenance</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-issue btn-sm staff-only" onclick="closeViewModal(); openIssueModal(${item.id});" ${item.available_quantity <= 0 ? 'disabled' : ''}>Issue Now</button>
+        <button class="btn btn-gold btn-sm staff-only" onclick="closeViewModal(); openRestockModal(${item.id});">Add Stock</button>
+        <button class="btn btn-outline btn-sm staff-only" onclick="closeViewModal(); openMaintModal(${item.id});">Schedule Maintenance</button>
+        <button class="btn btn-primary btn-sm" onclick="closeViewModal(); openQrModal(${item.id});">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;margin-right:4px;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Print QR Tag
+        </button>
       </div>
     </div>
   `;
@@ -1978,9 +2106,13 @@ function showDashboardApp(user) {
   }
 
   if (user) {
+    State.currentUser = user;
     const nameEl = document.getElementById('currentUserName');
     const avEl   = document.getElementById('currentUserAvatar');
+    const roleEl = document.getElementById('currentUserRoleBadge');
+
     if (nameEl) nameEl.textContent = user.full_name || user.username || 'Admin';
+    if (roleEl) roleEl.textContent = user.role || 'Administrator';
     if (avEl) {
       const initials = (user.full_name || user.username || 'AD')
         .split(' ')
@@ -1990,6 +2122,7 @@ function showDashboardApp(user) {
         .substring(0, 2);
       avEl.textContent = initials;
     }
+    applyRolePermissions(user.role || 'Administrator');
   }
 
   // Load dashboard data once authenticated
@@ -2070,10 +2203,16 @@ function handleAdminLogin(e) {
     }
   })
   .catch(err => {
-    // If running offline or server not responding, allow admin fallback
+    // If running offline or server not responding, allow role fallbacks
     if (username.toLowerCase() === 'admin') {
-      showToast('info', 'Offline Mode', 'Signed in locally. Start XAMPP for live database syncing.');
+      showToast('info', 'Offline Mode', 'Signed in locally as Administrator.');
       showDashboardApp({ username: 'admin', full_name: 'Lab In-Charge', role: 'Administrator' });
+    } else if (username.toLowerCase() === 'assistant') {
+      showToast('info', 'Offline Mode', 'Signed in locally as Lab Assistant.');
+      showDashboardApp({ username: 'assistant', full_name: 'Kiran Kumar', role: 'Lab Assistant' });
+    } else if (username.toLowerCase() === 'student') {
+      showToast('info', 'Offline Mode', 'Signed in locally as Student.');
+      showDashboardApp({ username: 'student', full_name: 'Sneha Kulkarni', role: 'Student' });
     } else {
       if (alertEl) {
         alertEl.textContent = 'Server error during login. Ensure XAMPP Apache & MySQL are running.';
@@ -2113,6 +2252,10 @@ async function initDashboardData() {
     await loadInventory();
     await loadLoans();
     await loadMaintenance();
+    await loadReservations();
+    await loadTransfers();
+    await loadVendors();
+    await loadAuditLogs();
     await loadReports();
   } catch (err) {
     showToast('error', 'Database Unreachable',
@@ -2161,6 +2304,1387 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Initialize and apply user settings
+  initSettings();
+
   // Verify authentication before exposing dashboard
   await checkAuthStatus();
 });
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 3: ROLE-BASED ACCESS CONTROL (RBAC)
+   ════════════════════════════════════════════════════════════════ */
+
+function applyRolePermissions(role) {
+  const normalizedRole = role ? role.toLowerCase() : 'administrator';
+  const roleBadge = document.getElementById('currentUserRoleBadge');
+  if (roleBadge) roleBadge.textContent = role;
+
+  const adminEls = document.querySelectorAll('.admin-only');
+  const staffEls = document.querySelectorAll('.staff-only');
+
+  if (normalizedRole.includes('student')) {
+    adminEls.forEach(el => el.style.display = 'none');
+    staffEls.forEach(el => el.style.display = 'none');
+  } else if (normalizedRole.includes('assistant') || normalizedRole.includes('tech')) {
+    adminEls.forEach(el => el.style.display = 'none');
+    staffEls.forEach(el => el.style.display = '');
+  } else {
+    // Administrator
+    adminEls.forEach(el => el.style.display = '');
+    staffEls.forEach(el => el.style.display = '');
+  }
+}
+
+function toggleRoleDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('roleDropdownMenu');
+  if (menu) menu.classList.toggle('show');
+}
+
+// Close role dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const roleDropdown = document.getElementById('roleDropdownWrapper');
+  const menu = document.getElementById('roleDropdownMenu');
+  if (menu && roleDropdown && !roleDropdown.contains(e.target)) {
+    menu.classList.remove('show');
+  }
+});
+
+async function switchUserRole(role) {
+  const menu = document.getElementById('roleDropdownMenu');
+  if (menu) menu.classList.remove('show');
+
+  try {
+    const res = await fetch(`auth.php?action=quick_switch&role=${encodeURIComponent(role)}`);
+    const data = await res.json();
+    if (data.success && data.user) {
+      State.currentUser = data.user;
+      const nameEl = document.getElementById('currentUserName');
+      if (nameEl) nameEl.textContent = data.user.full_name || data.user.username;
+      applyRolePermissions(data.user.role);
+      showToast('info', 'Role Switched', `Active Session: ${data.user.full_name} (${data.user.role})`);
+    } else {
+      // Fallback in offline / local mode
+      State.currentUser = { username: role.toLowerCase(), full_name: role === 'Student' ? 'Sneha Kulkarni' : (role === 'Lab Assistant' ? 'Kiran Kumar' : 'Lab In-Charge'), role };
+      applyRolePermissions(role);
+      const nameEl = document.getElementById('currentUserName');
+      if (nameEl) nameEl.textContent = State.currentUser.full_name;
+      showToast('info', 'Role Switched (Local)', `Active Session: ${role}`);
+    }
+  } catch (err) {
+    State.currentUser = { username: role.toLowerCase(), full_name: role, role };
+    applyRolePermissions(role);
+    showToast('info', 'Role Switched', `Switched to ${role}`);
+  }
+}
+
+function autoFillRole(role) {
+  const u = document.getElementById('loginUsername');
+  const p = document.getElementById('loginPassword');
+  if (!u || !p) return;
+
+  if (role === 'admin') {
+    u.value = 'admin';
+    p.value = 'admin123';
+    showToast('info', 'Admin Profile', 'Loaded Administrator credentials.');
+  } else if (role === 'assistant') {
+    u.value = 'assistant';
+    p.value = 'assist123';
+    showToast('info', 'Lab Assistant', 'Loaded Lab Assistant credentials.');
+  } else if (role === 'student') {
+    u.value = 'student';
+    p.value = 'student123';
+    showToast('info', 'Student Profile', 'Loaded Student credentials.');
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 3: QR CODE GENERATOR & SCANNER SUITE
+   ════════════════════════════════════════════════════════════════ */
+
+function openQrModal(itemId) {
+  const item = State.items.find(i => i.id === itemId);
+  if (!item) return;
+
+  const nameEl = document.getElementById('qrTagItemName');
+  const modEl  = document.getElementById('qrTagModel');
+  const locEl  = document.getElementById('qrTagLocation');
+  const codeEl = document.getElementById('qrTagCodeBadge');
+  const target = document.getElementById('qrCodeTarget');
+
+  if (nameEl) nameEl.textContent = item.item_name;
+  if (modEl)  modEl.textContent  = item.model_no || 'Standard Apparatus';
+  if (locEl)  locEl.textContent  = item.location || 'Central Lab';
+  if (codeEl) codeEl.textContent = item.item_code;
+
+  if (target) {
+    target.innerHTML = '';
+    if (typeof QRCode !== 'undefined') {
+      try {
+        new QRCode(target, {
+          text: item.item_code,
+          width: 110,
+          height: 110,
+          colorDark: '#0f172a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (e) {
+        console.warn('QRCode error:', e);
+        target.innerHTML = `<div style="font-family:monospace;font-size:0.75rem;padding:20px 10px;border:1px solid #ccc;font-weight:700;">${item.item_code}</div>`;
+      }
+    } else {
+      // Fallback QR simulation box
+      target.innerHTML = `<div style="font-family:monospace;font-size:0.75rem;padding:24px 12px;border:2px dashed #0f172a;font-weight:800;background:#f8fafc;">[QR: ${item.item_code}]</div>`;
+    }
+  }
+
+  const modal = document.getElementById('qrCodeModal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeQrModal() {
+  const modal = document.getElementById('qrCodeModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function printQrTagSticker() {
+  const printContent = document.getElementById('printableQrTag');
+  if (!printContent) return;
+
+  const printWindow = window.open('', '_blank', 'width=600,height=400');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Print QR Asset Label</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 20px; display: flex; justify-content: center; align-items: center; min-height: 90vh; }
+          .printable-qr-tag { border: 2px dashed #0f172a; border-radius: 12px; padding: 20px; width: 440px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
+        </style>
+      </head>
+      <body>
+        <div class="printable-qr-tag">
+          ${printContent.innerHTML}
+        </div>
+        <script>
+          window.onload = function() { window.print(); window.close(); };
+        <\/script>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+function openQrScannerModal() {
+  const modal = document.getElementById('qrScannerModal');
+  if (modal) modal.classList.add('open');
+
+  const resultCard = document.getElementById('scannedResultCard');
+  if (resultCard) resultCard.classList.add('hidden');
+  const manualInput = document.getElementById('manualTagInput');
+  if (manualInput) manualInput.value = '';
+
+  if (typeof Html5Qrcode !== 'undefined') {
+    try {
+      State.qrScanner = new Html5Qrcode('qr-reader');
+      State.qrScanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => onScanSuccess(decodedText),
+        (errorMessage) => { /* ignore per-frame failures */ }
+      ).catch(err => {
+        console.warn('Camera stream unavailable:', err);
+        const reader = document.getElementById('qr-reader');
+        if (reader) {
+          reader.innerHTML = `
+            <div style="padding:30px 16px;color:#94a3b8;font-size:0.85rem;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:36px;height:36px;margin:0 auto 10px;display:block;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Camera video stream unavailable or permission denied.<br>
+              Use the manual asset tag entry below.
+            </div>
+          `;
+        }
+      });
+    } catch (e) {
+      console.warn('Html5Qrcode init error:', e);
+    }
+  } else {
+    const reader = document.getElementById('qr-reader');
+    if (reader) {
+      reader.innerHTML = `<div style="padding:30px 16px;color:#94a3b8;font-size:0.85rem;">Scanner ready. Enter apparatus tag below.</div>`;
+    }
+  }
+}
+
+function closeQrScannerModal() {
+  if (State.qrScanner) {
+    State.qrScanner.stop()
+      .then(() => State.qrScanner.clear())
+      .catch(e => console.log('Scanner stop err:', e))
+      .finally(() => { State.qrScanner = null; });
+  }
+  const modal = document.getElementById('qrScannerModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function onScanSuccess(decodedText) {
+  if (!decodedText) return;
+  const cleaned = decodedText.trim();
+  const matched = State.items.find(i =>
+    i.item_code.toLowerCase() === cleaned.toLowerCase() ||
+    cleaned.toLowerCase().includes(i.item_code.toLowerCase())
+  );
+
+  if (matched) {
+    State.lastScannedItem = matched;
+    const card = document.getElementById('scannedResultCard');
+    const tag  = document.getElementById('detectedCodeTag');
+    const title= document.getElementById('detectedItemTitle');
+    const loc  = document.getElementById('detectedItemLoc');
+
+    if (tag)   tag.textContent = matched.item_code;
+    if (title) title.textContent = `${matched.item_name} (${matched.model_no || 'Standard'})`;
+    if (loc)   loc.innerHTML = `Location: <strong>${escHtml(matched.location)}</strong> &bull; Available: <strong>${matched.available_quantity} ${escHtml(matched.unit)}</strong>`;
+    if (card)  card.classList.remove('hidden');
+
+    showToast('success', 'Apparatus Detected', `${matched.item_name} [${matched.item_code}]`);
+  } else {
+    showToast('warning', 'Unrecognized Tag', `Scanned code "${cleaned}" is not in database.`);
+  }
+}
+
+function handleManualTagLookup() {
+  const val = document.getElementById('manualTagInput')?.value.trim();
+  if (!val) {
+    showToast('error', 'Tag Required', 'Please enter an equipment tag code.');
+    return;
+  }
+  onScanSuccess(val);
+}
+
+function scannedAction(action) {
+  if (!State.lastScannedItem) return;
+  const item = State.lastScannedItem;
+  closeQrScannerModal();
+
+  if (action === 'issue') {
+    openIssueModal(item.id);
+  } else if (action === 'return') {
+    // Check if there is an active loan for this item
+    const activeLoan = State.loans.find(l => l.item_id === item.id && (l.status === 'Active' || l.status === 'Overdue'));
+    if (activeLoan) {
+      openReturnModal(activeLoan.id);
+    } else {
+      showToast('info', 'No Active Loan', `No outstanding circulation loan found for ${item.item_name}.`);
+    }
+  } else if (action === 'specs') {
+    openViewModal(item.id);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 3: STUDENT ONLINE RESERVATIONS & BOOKINGS
+   ════════════════════════════════════════════════════════════════ */
+
+async function loadReservations() {
+  const tbody = document.getElementById('reservationsTableBody');
+  if (tbody) tbody.innerHTML = `<tr class="loading-row"><td colspan="9">Loading laboratory reservations…</td></tr>`;
+
+  try {
+    const res = await fetch('reservations_api.php?action=list');
+    const data = await res.json();
+    if (data.success) {
+      State.reservations = data.reservations || [];
+    } else {
+      State.reservations = FALLBACK_RESERVATIONS;
+    }
+  } catch (err) {
+    console.warn('Using fallback reservations:', err);
+    State.reservations = FALLBACK_RESERVATIONS;
+  }
+
+  filterReservations();
+}
+
+function renderReservationsTable(list) {
+  const tbody = document.getElementById('reservationsTableBody');
+  if (!tbody) return;
+
+  const totalEl    = document.getElementById('resKpiTotal');
+  const pendingEl  = document.getElementById('resKpiPending');
+  const approvedEl = document.getElementById('resKpiApproved');
+  const issuedEl   = document.getElementById('resKpiIssued');
+  const sbBadge    = document.getElementById('sidebarResCount');
+
+  const pendingCount  = State.reservations.filter(r => r.status === 'Pending').length;
+  const approvedCount = State.reservations.filter(r => r.status === 'Approved').length;
+  const issuedCount   = State.reservations.filter(r => r.status === 'Issued').length;
+
+  if (totalEl)    totalEl.textContent    = State.reservations.length;
+  if (pendingEl)  pendingEl.textContent  = pendingCount;
+  if (approvedEl) approvedEl.textContent = approvedCount;
+  if (issuedEl)   issuedEl.textContent   = issuedCount;
+  if (sbBadge)    sbBadge.textContent    = pendingCount;
+
+  if (!list || !list.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:#94a3b8;">No matching laboratory reservations found.</td></tr>`;
+    return;
+  }
+
+  const role = State.currentUser ? (State.currentUser.role || 'Administrator').toLowerCase() : 'administrator';
+  const isStudent = role.includes('student');
+
+  tbody.innerHTML = list.map(r => {
+    let statusBg = '#dbeafe';
+    let statusColor = '#1d4ed8';
+
+    if (r.status === 'Approved') {
+      statusBg = '#dcfce7'; statusColor = '#15803d';
+    } else if (r.status === 'Issued') {
+      statusBg = '#f1f5f9'; statusColor = '#475569';
+    } else if (r.status === 'Rejected' || r.status === 'Cancelled') {
+      statusBg = '#fee2e2'; statusColor = '#dc2626';
+    } else if (r.status === 'Pending') {
+      statusBg = '#fef3c7'; statusColor = '#d97706';
+    }
+
+    let actionButtons = '';
+    if (r.status === 'Pending') {
+      if (!isStudent) {
+        actionButtons = `
+          <button class="btn btn-issue btn-sm" onclick="updateReservationStatus(${r.id}, 'Approved')">Approve</button>
+          <button class="btn btn-outline btn-sm" onclick="updateReservationStatus(${r.id}, 'Rejected')" style="color:#dc2626;">Reject</button>
+        `;
+      } else {
+        actionButtons = `<button class="btn btn-outline btn-sm" onclick="updateReservationStatus(${r.id}, 'Cancelled')">Cancel</button>`;
+      }
+    } else if (r.status === 'Approved') {
+      if (!isStudent) {
+        actionButtons = `<button class="btn btn-primary btn-sm" onclick="convertReservationToLoan(${r.id})">Issue Apparatus</button>`;
+      } else {
+        actionButtons = `<span style="font-size:0.75rem;color:#15803d;font-weight:700;">Ready for Pickup</span>`;
+      }
+    } else if (r.status === 'Issued') {
+      actionButtons = `<span style="font-size:0.75rem;color:#64748b;font-weight:600;">Active Loan #LN-${r.loan_id || r.id}</span>`;
+    } else {
+      actionButtons = `<span style="font-size:0.75rem;color:#94a3b8;">Closed</span>`;
+    }
+
+    return `
+      <tr>
+        <td><span class="badge" style="background:#f1f5f9;color:#334155;font-family:monospace;">#RES-00${r.id}</span></td>
+        <td class="td-bold">
+          ${escHtml(r.item_name || 'Laboratory Apparatus')}
+          <div style="font-size:0.7rem;color:#64748b;font-family:monospace;">${escHtml(r.item_code || '')}</div>
+        </td>
+        <td>
+          <div style="font-weight:700;color:#0f172a;">${escHtml(r.student_name)}</div>
+          <div style="font-size:0.72rem;color:#64748b;font-family:monospace;">${escHtml(r.student_id)}</div>
+        </td>
+        <td><span style="font-size:0.78rem;color:#475569;">${escHtml(r.department || 'Engineering')}</span></td>
+        <td>
+          <div style="font-size:0.8rem;font-weight:600;color:#0f172a;">${r.reservation_date}</div>
+          <div style="font-size:0.72rem;color:#64748b;">${escHtml(r.time_slot)}</div>
+        </td>
+        <td><strong>${r.quantity}</strong></td>
+        <td><span style="font-size:0.75rem;color:#475569;">${escHtml(r.purpose || 'Lab Practical')}</span></td>
+        <td><span class="badge" style="background:${statusBg};color:${statusColor};">${r.status}</span></td>
+        <td><div style="display:flex;gap:6px;align-items:center;">${actionButtons}</div></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterReservations() {
+  const query = (document.getElementById('resSearchInput')?.value || '').toLowerCase().trim();
+  const filter = State.activeResFilter || 'All';
+
+  let list = State.reservations;
+  if (filter !== 'All') {
+    list = list.filter(r => r.status.toLowerCase() === filter.toLowerCase());
+  }
+  if (query) {
+    list = list.filter(r =>
+      (r.student_name && r.student_name.toLowerCase().includes(query)) ||
+      (r.student_id && r.student_id.toLowerCase().includes(query)) ||
+      (r.item_name && r.item_name.toLowerCase().includes(query)) ||
+      (r.item_code && r.item_code.toLowerCase().includes(query)) ||
+      (r.purpose && r.purpose.toLowerCase().includes(query))
+    );
+  }
+  State.filteredReservations = list;
+  renderReservationsTable(list);
+}
+
+function setResFilter(btn) {
+  if (!btn) return;
+  document.querySelectorAll('#resStatusChips .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  State.activeResFilter = btn.getAttribute('data-res-status') || 'All';
+  filterReservations();
+}
+
+function openNewReservationModal() {
+  const select = document.getElementById('resItemSelect');
+  if (select) {
+    select.innerHTML = '<option value="">— Select Apparatus / Equipment —</option>';
+    const availableItems = State.items.filter(i => i.available_quantity > 0);
+    availableItems.forEach(it => {
+      select.innerHTML += `<option value="${it.id}">${it.item_name} (${it.item_code}) — Avail: ${it.available_quantity} ${it.unit}</option>`;
+    });
+  }
+
+  // Pre-fill student credentials if signed in as student
+  if (State.currentUser && State.currentUser.role === 'Student') {
+    const sName = document.getElementById('resStudentName');
+    const sId   = document.getElementById('resStudentId');
+    const sDept = document.getElementById('resStudentDept');
+    const sMail = document.getElementById('resStudentEmail');
+    if (sName) sName.value = State.currentUser.full_name || '';
+    if (sId)   sId.value   = State.currentUser.student_id || 'STU-2024-042';
+    if (sDept) sDept.value = State.currentUser.department || 'Electronics & Comm.';
+    if (sMail) sMail.value = State.currentUser.email || '';
+  }
+
+  // Set default reservation date to tomorrow
+  const dateInput = document.getElementById('resDate');
+  if (dateInput) {
+    const tmrw = new Date();
+    tmrw.setDate(tmrw.getDate() + 1);
+    dateInput.value = tmrw.toISOString().split('T')[0];
+  }
+
+  const modal = document.getElementById('newReservationModal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeNewReservationModal() {
+  const modal = document.getElementById('newReservationModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function onResItemChange() {
+  const select = document.getElementById('resItemSelect');
+  const hint   = document.getElementById('resAvailHint');
+  const qtyIn  = document.getElementById('resQty');
+  if (!select || !hint) return;
+
+  const itemId = parseInt(select.value, 10);
+  const item   = State.items.find(i => i.id === itemId);
+  if (item) {
+    hint.textContent = `Current Stock: ${item.available_quantity} ${item.unit} available in ${item.location}`;
+    if (qtyIn) qtyIn.max = item.available_quantity;
+  } else {
+    hint.textContent = '';
+  }
+}
+
+async function submitNewReservation(e) {
+  e.preventDefault();
+
+  const itemId   = parseInt(document.getElementById('resItemSelect').value, 10);
+  const sName    = document.getElementById('resStudentName').value.trim();
+  const sId      = document.getElementById('resStudentId').value.trim();
+  const sDept    = document.getElementById('resStudentDept').value.trim();
+  const sEmail   = document.getElementById('resStudentEmail').value.trim();
+  const rDate    = document.getElementById('resDate').value;
+  const timeSlot = document.getElementById('resTimeSlot').value;
+  const qty      = parseInt(document.getElementById('resQty').value, 10) || 1;
+  const purpose  = document.getElementById('resPurpose').value.trim();
+
+  const btn = document.getElementById('resSubmitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+
+  try {
+    const res = await fetch('reservations_api.php?action=create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        item_id: itemId,
+        student_name: sName,
+        student_id: sId,
+        department: sDept,
+        email: sEmail,
+        reservation_date: rDate,
+        time_slot: timeSlot,
+        quantity: qty,
+        purpose: purpose
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeNewReservationModal();
+      showToast('success', 'Reservation Booked!', data.message || 'Your lab slot has been requested.');
+      await loadReservations();
+      await loadStatistics();
+    } else {
+      showToast('error', 'Booking Failed', data.message);
+    }
+  } catch (err) {
+    showToast('error', 'Network Error', err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit Reservation'; }
+  }
+}
+
+async function updateReservationStatus(resId, status) {
+  try {
+    const res = await fetch('reservations_api.php?action=update_status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reservation_id: resId, status })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('success', `Reservation ${status}`, data.message);
+      await loadReservations();
+      await loadStatistics();
+    } else {
+      showToast('error', 'Update Failed', data.message);
+    }
+  } catch (err) {
+    showToast('error', 'Network Error', err.message);
+  }
+}
+
+async function convertReservationToLoan(resId) {
+  try {
+    const res = await fetch('reservations_api.php?action=convert_to_loan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reservation_id: resId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('success', 'Apparatus Issued!', data.message || 'Reservation converted into active loan.');
+      await loadReservations();
+      await loadLoans();
+      await loadInventory();
+      await loadStatistics();
+    } else {
+      showToast('error', 'Issue Failed', data.message);
+    }
+  } catch (err) {
+    showToast('error', 'Network Error', err.message);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 3: MULTI-LABORATORY INTER-ROOM TRANSFERS
+   ════════════════════════════════════════════════════════════════ */
+
+async function loadTransfers() {
+  const tbody = document.getElementById('transfersTableBody');
+  if (tbody) tbody.innerHTML = `<tr class="loading-row"><td colspan="9">Loading laboratory transfers…</td></tr>`;
+
+  try {
+    const res = await fetch('transfers_api.php?action=list');
+    const data = await res.json();
+    if (data.success) {
+      State.transfers = data.transfers || [];
+    } else {
+      State.transfers = FALLBACK_TRANSFERS;
+    }
+  } catch (err) {
+    console.warn('Using fallback transfers:', err);
+    State.transfers = FALLBACK_TRANSFERS;
+  }
+
+  filterTransfers();
+}
+
+function renderTransfersTable(list) {
+  const tbody = document.getElementById('transfersTableBody');
+  if (!tbody) return;
+
+  const totalEl   = document.getElementById('trfKpiTotal');
+  const pendingEl = document.getElementById('trfKpiPending');
+  const transitEl = document.getElementById('trfKpiDispatched');
+  const rcvedEl   = document.getElementById('trfKpiReceived');
+  const sbBadge   = document.getElementById('sidebarTrfCount');
+
+  const pendingCount   = State.transfers.filter(t => t.status === 'Pending').length;
+  const transitCount   = State.transfers.filter(t => t.status === 'Dispatched').length;
+  const receivedCount  = State.transfers.filter(t => t.status === 'Received').length;
+
+  if (totalEl)   totalEl.textContent   = State.transfers.length;
+  if (pendingEl) pendingEl.textContent = pendingCount;
+  if (transitEl) transitEl.textContent = transitCount;
+  if (rcvedEl)   rcvedEl.textContent   = receivedCount;
+  if (sbBadge)   sbBadge.textContent   = pendingCount + transitCount;
+
+  if (!list || !list.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:#94a3b8;">No inter-laboratory transfers recorded.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(t => {
+    let statusBg = '#fef3c7'; let statusColor = '#d97706';
+    if (t.status === 'Dispatched') {
+      statusBg = '#e0f2fe'; statusColor = '#0284c7';
+    } else if (t.status === 'Received') {
+      statusBg = '#dcfce7'; statusColor = '#059669';
+    } else if (t.status === 'Cancelled') {
+      statusBg = '#fee2e2'; statusColor = '#dc2626';
+    }
+
+    let actionBtn = '';
+    if (t.status === 'Pending') {
+      actionBtn = `<button class="btn btn-issue btn-sm staff-only" onclick="dispatchTransfer(${t.id})">Dispatch</button>`;
+    } else if (t.status === 'Dispatched') {
+      actionBtn = `<button class="btn btn-primary btn-sm staff-only" onclick="receiveTransfer(${t.id})">Receive & Verify</button>`;
+    } else if (t.status === 'Received') {
+      actionBtn = `<span style="font-size:0.75rem;color:#059669;font-weight:700;">✓ In Safe Custody</span>`;
+    } else {
+      actionBtn = `<span style="font-size:0.75rem;color:#94a3b8;">Cancelled</span>`;
+    }
+
+    return `
+      <tr>
+        <td><span class="badge" style="background:#f1f5f9;color:#334155;font-family:monospace;">${escHtml(t.transfer_no)}</span></td>
+        <td class="td-bold">
+          ${escHtml(t.item_name || 'Apparatus')}
+          <div style="font-size:0.7rem;color:#64748b;font-family:monospace;">${escHtml(t.item_code || '')}</div>
+        </td>
+        <td><span style="font-size:0.78rem;color:#64748b;">📍 ${escHtml(t.from_location)}</span></td>
+        <td><span style="font-size:0.8rem;font-weight:700;color:#0f172a;">📍 ${escHtml(t.to_location)}</span></td>
+        <td><strong>${t.quantity}</strong></td>
+        <td><span style="font-size:0.78rem;color:#334155;">${escHtml(t.requested_by)}</span></td>
+        <td><span style="font-size:0.78rem;color:#64748b;">${t.transfer_date}</span></td>
+        <td><span class="badge" style="background:${statusBg};color:${statusColor};">${t.status}</span></td>
+        <td>${actionBtn}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterTransfers() {
+  const query  = (document.getElementById('trfSearchInput')?.value || '').toLowerCase().trim();
+  const filter = State.activeTrfFilter || 'All';
+
+  let list = State.transfers;
+  if (filter !== 'All') {
+    list = list.filter(t => t.status.toLowerCase() === filter.toLowerCase());
+  }
+  if (query) {
+    list = list.filter(t =>
+      (t.item_name && t.item_name.toLowerCase().includes(query)) ||
+      (t.transfer_no && t.transfer_no.toLowerCase().includes(query)) ||
+      (t.from_location && t.from_location.toLowerCase().includes(query)) ||
+      (t.to_location && t.to_location.toLowerCase().includes(query)) ||
+      (t.requested_by && t.requested_by.toLowerCase().includes(query))
+    );
+  }
+  State.filteredTransfers = list;
+  renderTransfersTable(list);
+}
+
+function setTrfFilter(btn) {
+  if (!btn) return;
+  document.querySelectorAll('#trfStatusChips .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  State.activeTrfFilter = btn.getAttribute('data-trf-status') || 'All';
+  filterTransfers();
+}
+
+function openNewTransferModal() {
+  const select = document.getElementById('trfItemSelect');
+  if (select) {
+    select.innerHTML = '<option value="">— Select Equipment Item —</option>';
+    State.items.forEach(it => {
+      select.innerHTML += `<option value="${it.id}">${it.item_name} (${it.item_code}) — Located at ${it.location}</option>`;
+    });
+  }
+
+  const dateInput = document.getElementById('trfDate');
+  if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+  const modal = document.getElementById('newTransferModal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeNewTransferModal() {
+  const modal = document.getElementById('newTransferModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function onTrfItemChange() {
+  const select = document.getElementById('trfItemSelect');
+  const fromIn = document.getElementById('trfFromLocation');
+  const qtyIn  = document.getElementById('trfQty');
+  if (!select || !fromIn) return;
+
+  const itemId = parseInt(select.value, 10);
+  const item   = State.items.find(i => i.id === itemId);
+  if (item) {
+    fromIn.value = item.location || 'Main Lab';
+    if (qtyIn) qtyIn.max = item.available_quantity || item.total_quantity;
+  } else {
+    fromIn.value = '';
+  }
+}
+
+async function submitNewTransfer(e) {
+  e.preventDefault();
+
+  const itemId      = parseInt(document.getElementById('trfItemSelect').value, 10);
+  const toLocation  = document.getElementById('trfToLocation').value.trim();
+  const qty         = parseInt(document.getElementById('trfQty').value, 10) || 1;
+  const trfDate     = document.getElementById('trfDate').value;
+  const requestedBy = document.getElementById('trfRequestedBy').value.trim();
+  const notes       = document.getElementById('trfNotes').value.trim();
+
+  const btn = document.getElementById('trfSubmitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Dispatching…'; }
+
+  try {
+    const res = await fetch('transfers_api.php?action=create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        item_id: itemId,
+        to_location: toLocation,
+        quantity: qty,
+        transfer_date: trfDate,
+        requested_by: requestedBy,
+        notes: notes
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeNewTransferModal();
+      showToast('success', 'Transfer Initiated', data.message);
+      await loadTransfers();
+      await loadStatistics();
+    } else {
+      showToast('error', 'Transfer Failed', data.message);
+    }
+  } catch (err) {
+    showToast('error', 'Network Error', err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Dispatch Transfer'; }
+  }
+}
+
+async function dispatchTransfer(transferId) {
+  try {
+    const res = await fetch('transfers_api.php?action=dispatch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transfer_id: transferId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('success', 'Dispatched', data.message);
+      await loadTransfers();
+      await loadStatistics();
+    } else {
+      showToast('error', 'Dispatch Error', data.message);
+    }
+  } catch (err) {
+    showToast('error', 'Network Error', err.message);
+  }
+}
+
+async function receiveTransfer(transferId) {
+  try {
+    const res = await fetch('transfers_api.php?action=receive', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transfer_id: transferId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('success', 'Custody Accepted', data.message || 'Transfer confirmed & inventory location updated.');
+      await loadTransfers();
+      await loadInventory();
+      await loadStatistics();
+    } else {
+      showToast('error', 'Sign-off Failed', data.message);
+    }
+  } catch (err) {
+    showToast('error', 'Network Error', err.message);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 3: VENDORS, PROCUREMENT & WARRANTY TRACKING
+   ════════════════════════════════════════════════════════════════ */
+
+async function loadVendors() {
+  const tbody = document.getElementById('vendorsTableBody');
+  if (tbody) tbody.innerHTML = `<tr class="loading-row"><td colspan="8">Loading vendor directory…</td></tr>`;
+
+  try {
+    const res = await fetch('vendors_api.php?action=list');
+    const data = await res.json();
+    if (data.success) {
+      State.vendors = data.vendors || [];
+
+      // Update KPI valuations and warranties
+      const valEl  = document.getElementById('vendorKpiValuation');
+      const totEl  = document.getElementById('vendorKpiTotal');
+      const wrnEl  = document.getElementById('vendorKpiWarrantyAlerts');
+
+      if (valEl)  valEl.textContent = `₹ ${parseFloat(data.total_valuation || 0).toLocaleString('en-IN')}`;
+      if (totEl)  totEl.textContent = data.total_vendors || State.vendors.length;
+      if (wrnEl)  wrnEl.textContent = data.warranty_expiring_count || 0;
+
+      // Render Warranty Alerts Table if any items are expiring
+      renderWarrantyAlerts(data.expiring_warranties || []);
+    } else {
+      State.vendors = FALLBACK_VENDORS;
+    }
+  } catch (err) {
+    console.warn('Using fallback vendors:', err);
+    State.vendors = FALLBACK_VENDORS;
+  }
+
+  filterVendors();
+}
+
+function renderWarrantyAlerts(items) {
+  const alertCard = document.getElementById('warrantyAlertCard');
+  const tbody = document.getElementById('warrantyAlertTableBody');
+  if (!alertCard || !tbody) return;
+
+  if (!items || !items.length) {
+    alertCard.style.display = 'none';
+    return;
+  }
+
+  alertCard.style.display = 'block';
+  tbody.innerHTML = items.map(it => `
+    <tr>
+      <td class="td-bold">${escHtml(it.item_name)} (${escHtml(it.item_code)})</td>
+      <td>${escHtml(it.vendor_name || 'Standard Vendor')}</td>
+      <td>${it.purchase_date || 'N/A'}</td>
+      <td><span style="color:#b45309;font-weight:700;">${it.warranty_expiry}</span></td>
+      <td><span class="badge" style="background:#fef3c7;color:#b45309;">${it.days_remaining !== undefined ? `${it.days_remaining} Days Left` : 'Expiring Soon'}</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderVendorsTable(list) {
+  const tbody = document.getElementById('vendorsTableBody');
+  if (!tbody) return;
+
+  if (!list || !list.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:#94a3b8;">No vendor records found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(v => `
+    <tr>
+      <td class="td-bold">
+        ${escHtml(v.vendor_name)}
+        ${v.address ? `<div style="font-size:0.7rem;color:#64748b;font-weight:400;">${escHtml(v.address)}</div>` : ''}
+      </td>
+      <td>${escHtml(v.contact_person || '—')}</td>
+      <td><span style="font-family:monospace;font-size:0.8rem;">${escHtml(v.phone || '—')}</span></td>
+      <td><span style="font-size:0.8rem;color:#0369a1;">${escHtml(v.email || '—')}</span></td>
+      <td><span style="font-size:0.75rem;color:#475569;">${escHtml(v.categories_supplied || 'Lab Instruments')}</span></td>
+      <td><span style="color:#d97706;font-weight:700;font-size:0.82rem;">★ ${v.rating || '4.8'}</span></td>
+      <td><strong>${v.supplied_items_count || 0}</strong> items</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-icon-action admin-only" onclick="openVendorModal(${v.id})" title="Edit vendor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon-action danger admin-only" onclick="deleteVendor(${v.id})" title="Delete vendor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterVendors() {
+  const query = (document.getElementById('vendorSearchInput')?.value || '').toLowerCase().trim();
+  let list = State.vendors;
+  if (query) {
+    list = list.filter(v =>
+      (v.vendor_name && v.vendor_name.toLowerCase().includes(query)) ||
+      (v.contact_person && v.contact_person.toLowerCase().includes(query)) ||
+      (v.email && v.email.toLowerCase().includes(query)) ||
+      (v.categories_supplied && v.categories_supplied.toLowerCase().includes(query))
+    );
+  }
+  State.filteredVendors = list;
+  renderVendorsTable(list);
+}
+
+function openVendorModal(vendorId) {
+  const form = document.getElementById('vendorForm');
+  if (form) form.reset();
+
+  const titleEl = document.getElementById('vendorModalTitle');
+  const idEl    = document.getElementById('vendorFormId');
+
+  if (vendorId) {
+    const v = State.vendors.find(item => item.id === vendorId);
+    if (v) {
+      if (titleEl) titleEl.textContent = 'Edit Supplier / Vendor';
+      if (idEl)    idEl.value          = v.id;
+      document.getElementById('vName').value       = v.vendor_name || '';
+      document.getElementById('vContact').value    = v.contact_person || '';
+      document.getElementById('vEmail').value      = v.email || '';
+      document.getElementById('vPhone').value      = v.phone || '';
+      document.getElementById('vAddress').value    = v.address || '';
+      document.getElementById('vCategories').value = v.categories_supplied || '';
+      document.getElementById('vRating').value     = v.rating || 4.8;
+    }
+  } else {
+    if (titleEl) titleEl.textContent = 'Add Equipment Supplier / Vendor';
+    if (idEl)    idEl.value          = '';
+  }
+
+  const modal = document.getElementById('vendorModal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeVendorModal() {
+  const modal = document.getElementById('vendorModal');
+  if (modal) modal.classList.remove('open');
+}
+
+async function submitVendorForm(e) {
+  e.preventDefault();
+
+  const vendorId   = document.getElementById('vendorFormId').value;
+  const name       = document.getElementById('vName').value.trim();
+  const contact    = document.getElementById('vContact').value.trim();
+  const email      = document.getElementById('vEmail').value.trim();
+  const phone      = document.getElementById('vPhone').value.trim();
+  const address    = document.getElementById('vAddress').value.trim();
+  const categories = document.getElementById('vCategories').value.trim();
+  const rating     = parseFloat(document.getElementById('vRating').value) || 4.8;
+
+  const btn = document.getElementById('vSubmitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  const action = vendorId ? 'update' : 'create';
+  const payload = {
+    id: vendorId ? parseInt(vendorId, 10) : undefined,
+    vendor_name: name,
+    contact_person: contact,
+    email: email,
+    phone: phone,
+    address: address,
+    categories_supplied: categories,
+    rating: rating
+  };
+
+  try {
+    const res = await fetch(`vendors_api.php?action=${action}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeVendorModal();
+      showToast('success', 'Vendor Saved', data.message);
+      await loadVendors();
+    } else {
+      showToast('error', 'Vendor Error', data.message);
+    }
+  } catch (err) {
+    showToast('error', 'Network Error', err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Supplier'; }
+  }
+}
+
+async function deleteVendor(vendorId) {
+  if (!confirm('Are you sure you want to remove this vendor from the directory?')) return;
+
+  try {
+    const res = await fetch('vendors_api.php?action=delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: vendorId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('success', 'Vendor Removed', data.message);
+      await loadVendors();
+    } else {
+      showToast('error', 'Delete Failed', data.message);
+    }
+  } catch (err) {
+    showToast('error', 'Network Error', err.message);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 3: SECURITY & ACTIVITY AUDIT TRAIL
+   ════════════════════════════════════════════════════════════════ */
+
+async function loadAuditLogs() {
+  const tbody = document.getElementById('auditTableBody');
+  if (tbody) tbody.innerHTML = `<tr class="loading-row"><td colspan="6">Loading activity audit trail…</td></tr>`;
+
+  try {
+    const res = await fetch('audit_api.php?action=list');
+    const data = await res.json();
+    if (data.success) {
+      State.auditLogs = data.logs || [];
+    } else {
+      State.auditLogs = FALLBACK_AUDIT;
+    }
+  } catch (err) {
+    console.warn('Using fallback audit logs:', err);
+    State.auditLogs = FALLBACK_AUDIT;
+  }
+
+  filterAuditLogs();
+}
+
+function renderAuditTable(list) {
+  const tbody = document.getElementById('auditTableBody');
+  if (!tbody) return;
+
+  if (!list || !list.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#94a3b8;">No activity log records matched your query.</td></tr>`;
+    return;
+  }
+
+  const actionColorMap = {
+    ITEM_CREATED:         { bg: '#dcfce7', clr: '#15803d', label: 'Item Created' },
+    ITEM_UPDATED:         { bg: '#dbeafe', clr: '#1d4ed8', label: 'Item Updated' },
+    ITEM_DELETED:         { bg: '#fee2e2', clr: '#dc2626', label: 'Item Deleted' },
+    ITEM_RESTOCK:         { bg: '#fef3c7', clr: '#b45309', label: 'Restocked' },
+    ITEM_ISSUED:          { bg: '#fef3c7', clr: '#b45309', label: 'Loan Issued' },
+    ITEM_RETURNED:        { bg: '#dcfce7', clr: '#15803d', label: 'Loan Returned' },
+    MAINTENANCE_CREATED:  { bg: '#ffedd5', clr: '#c2410c', label: 'Maint. Scheduled' },
+    MAINTENANCE_COMPLETED:{ bg: '#dcfce7', clr: '#15803d', label: 'Maint. Certified' },
+    TRANSFER_REQUEST:     { bg: '#ede9fe', clr: '#6d28d9', label: 'Transfer Dispatched' },
+    TRANSFER_RECEIVED:    { bg: '#dcfce7', clr: '#15803d', label: 'Transfer Received' },
+    RESERVATION_CREATED:  { bg: '#e0f2fe', clr: '#0369a1', label: 'Reservation Booked' },
+    RESERVATION_ISSUED:   { bg: '#dcfce7', clr: '#15803d', label: 'Reservation Loaned' },
+    LOGIN:                { bg: '#f1f5f9', clr: '#475569', label: 'User Login' }
+  };
+
+  tbody.innerHTML = list.map(l => {
+    const meta = actionColorMap[l.action] || { bg: '#f1f5f9', clr: '#334155', label: l.action };
+    return `
+      <tr>
+        <td><span class="badge" style="background:#f1f5f9;color:#334155;font-family:monospace;">#LOG-00${l.id}</span></td>
+        <td><span style="font-size:0.75rem;color:#64748b;">${l.created_at}</span></td>
+        <td>
+          <div style="font-weight:700;color:#0f172a;font-size:0.82rem;">${escHtml(l.user_name || 'System')}</div>
+          <div style="font-size:0.7rem;color:#64748b;">${escHtml(l.user_role || 'Staff')}</div>
+        </td>
+        <td><span class="badge" style="background:${meta.bg};color:${meta.clr};">${meta.label}</span></td>
+        <td class="td-bold">${escHtml(l.item_name || '—')}</td>
+        <td><span style="font-size:0.78rem;color:#334155;">${escHtml(l.details || '—')}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterAuditLogs() {
+  const query = (document.getElementById('auditSearchInput')?.value || '').toLowerCase().trim();
+  const actionFilter = document.getElementById('auditActionFilter')?.value || 'All';
+
+  let list = State.auditLogs;
+  if (actionFilter !== 'All') {
+    list = list.filter(l => l.action === actionFilter);
+  }
+  if (query) {
+    list = list.filter(l =>
+      (l.user_name && l.user_name.toLowerCase().includes(query)) ||
+      (l.item_name && l.item_name.toLowerCase().includes(query)) ||
+      (l.details && l.details.toLowerCase().includes(query)) ||
+      (l.action && l.action.toLowerCase().includes(query))
+    );
+  }
+  State.filteredAuditLogs = list;
+  renderAuditTable(list);
+}
+
+function exportAuditLogCSV() {
+  const list = State.filteredAuditLogs.length ? State.filteredAuditLogs : State.auditLogs;
+  if (!list.length) {
+    showToast('info', 'No Logs', 'There are no audit logs to export.');
+    return;
+  }
+
+  const headers = ['Log ID', 'Timestamp', 'User', 'Role', 'Action', 'Item Name', 'Details', 'IP Address'];
+  const rows = list.map(l => [
+    l.id,
+    `"${l.created_at}"`,
+    `"${l.user_name || 'System'}"`,
+    `"${l.user_role || 'Staff'}"`,
+    `"${l.action}"`,
+    `"${(l.item_name || '').replace(/"/g, '""')}"`,
+    `"${(l.details || '').replace(/"/g, '""')}"`,
+    `"${l.ip_address || ''}"`
+  ]);
+
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `lab_security_audit_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('success', 'Audit Exported', 'Downloaded audit log spreadsheet.');
+}
+
+async function clearAuditTrail() {
+  if (!confirm('CAUTION: Are you sure you want to permanently clear the audit log? This operation cannot be undone.')) return;
+
+  try {
+    const res = await fetch('audit_api.php?action=clear', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      showToast('info', 'Audit Cleared', data.message);
+      await loadAuditLogs();
+    } else {
+      showToast('error', 'Operation Failed', data.message);
+    }
+  } catch (err) {
+    showToast('error', 'Network Error', err.message);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PHASE 3: AUTOMATED OVERDUE NOTICES & REMINDERS
+   ════════════════════════════════════════════════════════════════ */
+
+function openOverdueNoticeModal() {
+  const overdueLoans = State.loans.filter(l => l.status === 'Overdue');
+  const listContainer = document.getElementById('overdueBorrowersList');
+  if (listContainer) {
+    if (!overdueLoans.length) {
+      listContainer.innerHTML = '<div style="color:#059669;font-weight:600;">✓ Excellent! There are currently no overdue equipment loans.</div>';
+    } else {
+      listContainer.innerHTML = overdueLoans.map(l => `
+        <div style="padding:6px 0;border-bottom:1px solid #fecaca;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <strong>${escHtml(l.borrower_name)}</strong> (${escHtml(l.borrower_id)}) &bull; ${escHtml(l.item_name)}
+            <div style="font-size:0.72rem;color:#b91c1c;">Due: ${l.due_date} (${l.days_overdue || 'Exceeded'} days overdue)</div>
+          </div>
+          <span class="badge" style="background:#fee2e2;color:#dc2626;font-size:0.7rem;">Overdue</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  const modal = document.getElementById('overdueNoticeModal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeOverdueNoticeModal() {
+  const modal = document.getElementById('overdueNoticeModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function copyOverdueNotice() {
+  const text = document.getElementById('overdueMessageText')?.value || '';
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('success', 'Notice Copied', 'Reminder notice template copied to clipboard.');
+  }).catch(() => {
+    showToast('info', 'Notice Ready', 'Please select and copy the text manually.');
+  });
+}
+
+function simulateSendOverdueNotices() {
+  const overdueLoans = State.loans.filter(l => l.status === 'Overdue');
+  if (!overdueLoans.length) {
+    showToast('info', 'No Overdue Loans', 'No students currently require overdue notices.');
+    closeOverdueNoticeModal();
+    return;
+  }
+
+  showToast('success', 'Reminders Dispatched', `Automated notices sent to ${overdueLoans.length} borrower(s) via campus email/SMS.`);
+  closeOverdueNoticeModal();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SETTINGS & PREFERENCES MANAGEMENT
+   ════════════════════════════════════════════════════════════════ */
+
+const DEFAULT_SETTINGS = {
+  orgName:           'Central Engineering College',
+  deptName:          'Department of Electronics & Communication',
+  labName:           'Central Hardware & Research Lab',
+  roomNo:            'Room 201 - Science Block',
+  inchargeName:      'Prof. H. R. Sharma',
+  inchargeEmail:     'lab-incharge@univ.edu',
+  loanDays:          14,
+  maxItems:          2,
+  minStock:          3,
+  noticeDays:        2,
+  allowWeekend:      true,
+  autoOverdueBanner: true,
+  currency:          '₹',
+  dateFormat:        'YYYY-MM-DD',
+  pageSize:          25,
+  theme:             'forest',
+  scanBeep:          true,
+  showQuickStats:    true,
+};
+
+function initSettings() {
+  try {
+    const raw = localStorage.getItem('lab_inventory_settings_v3');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      State.settings = Object.assign({}, DEFAULT_SETTINGS, parsed);
+    } else {
+      State.settings = Object.assign({}, DEFAULT_SETTINGS);
+    }
+  } catch (err) {
+    console.warn('Failed to parse settings from storage:', err);
+    State.settings = Object.assign({}, DEFAULT_SETTINGS);
+  }
+  applyThemeSetting(State.settings.theme || 'forest');
+}
+
+function populateSettingsForm() {
+  initSettings();
+  const s = State.settings;
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val !== undefined ? val : '';
+  };
+  const setChecked = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = Boolean(val);
+  };
+
+  setVal('settingOrgName', s.orgName);
+  setVal('settingDeptName', s.deptName);
+  setVal('settingLabName', s.labName);
+  setVal('settingRoomNo', s.roomNo);
+  setVal('settingInchargeName', s.inchargeName);
+  setVal('settingInchargeEmail', s.inchargeEmail);
+
+  setVal('settingLoanDays', s.loanDays);
+  setVal('settingMaxItems', s.maxItems);
+  setVal('settingMinStock', s.minStock);
+  setVal('settingNoticeDays', s.noticeDays);
+
+  setChecked('settingAllowWeekend', s.allowWeekend);
+  setChecked('settingAutoOverdueBanner', s.autoOverdueBanner);
+
+  setVal('settingCurrency', s.currency);
+  setVal('settingDateFormat', s.dateFormat);
+  setVal('settingPageSize', s.pageSize);
+  setVal('settingTheme', s.theme);
+
+  setChecked('settingScanBeep', s.scanBeep);
+  setChecked('settingShowQuickStats', s.showQuickStats);
+
+  const roleEl = document.getElementById('settingActiveRoleText');
+  if (roleEl && State.currentUser) {
+    roleEl.textContent = `${State.currentUser.name} (${State.currentUser.role})`;
+  }
+}
+
+function saveSettingsForm(event) {
+  if (event) event.preventDefault();
+  const getVal = (id, def = '') => {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : def;
+  };
+  const getNum = (id, def = 1) => {
+    const el = document.getElementById(id);
+    const n = parseInt(el?.value, 10);
+    return isNaN(n) ? def : n;
+  };
+  const getChecked = (id) => {
+    const el = document.getElementById(id);
+    return el ? el.checked : false;
+  };
+
+  const newSettings = {
+    orgName:           getVal('settingOrgName', DEFAULT_SETTINGS.orgName),
+    deptName:          getVal('settingDeptName', DEFAULT_SETTINGS.deptName),
+    labName:           getVal('settingLabName', DEFAULT_SETTINGS.labName),
+    roomNo:            getVal('settingRoomNo', DEFAULT_SETTINGS.roomNo),
+    inchargeName:      getVal('settingInchargeName', DEFAULT_SETTINGS.inchargeName),
+    inchargeEmail:     getVal('settingInchargeEmail', DEFAULT_SETTINGS.inchargeEmail),
+    loanDays:          getNum('settingLoanDays', 14),
+    maxItems:          getNum('settingMaxItems', 2),
+    minStock:          getNum('settingMinStock', 3),
+    noticeDays:        getNum('settingNoticeDays', 2),
+    allowWeekend:      getChecked('settingAllowWeekend'),
+    autoOverdueBanner: getChecked('settingAutoOverdueBanner'),
+    currency:          getVal('settingCurrency', '₹'),
+    dateFormat:        getVal('settingDateFormat', 'YYYY-MM-DD'),
+    pageSize:          getNum('settingPageSize', 25),
+    theme:             getVal('settingTheme', 'forest'),
+    scanBeep:          getChecked('settingScanBeep'),
+    showQuickStats:    getChecked('settingShowQuickStats'),
+  };
+
+  State.settings = newSettings;
+  try {
+    localStorage.setItem('lab_inventory_settings_v3', JSON.stringify(newSettings));
+  } catch (e) {
+    console.error('Could not save settings to localStorage:', e);
+  }
+
+  applyThemeSetting(newSettings.theme);
+  showToast('success', 'Settings Saved', 'System preferences and laboratory settings updated successfully!');
+}
+
+function resetSettingsToDefault() {
+  State.settings = Object.assign({}, DEFAULT_SETTINGS);
+  try {
+    localStorage.removeItem('lab_inventory_settings_v3');
+  } catch (e) {}
+  populateSettingsForm();
+  applyThemeSetting('forest');
+  showToast('info', 'Settings Reset', 'Settings have been restored to default configuration.');
+}
+
+function applyThemeSetting(theme) {
+  document.body.classList.remove('theme-navy', 'theme-emerald');
+  if (theme === 'navy') {
+    document.body.classList.add('theme-navy');
+  } else if (theme === 'emerald') {
+    document.body.classList.add('theme-emerald');
+  }
+}
+
+function exportFullSystemJSON() {
+  const payload = {
+    exportDate: new Date().toISOString(),
+    system: 'Lab Inventory Management System v3.1',
+    settings: State.settings || DEFAULT_SETTINGS,
+    summary: {
+      totalItems: State.items.length,
+      totalLoans: State.loans.length,
+      totalReservations: State.reservations.length,
+      totalTransfers: State.transfers.length,
+      totalVendors: State.vendors.length,
+      totalAuditLogs: State.auditLogs.length
+    },
+    items: State.items,
+    loans: State.loans,
+    reservations: State.reservations,
+    transfers: State.transfers,
+    vendors: State.vendors,
+    auditLogs: State.auditLogs
+  };
+
+  const str = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(payload, null, 2));
+  const link = document.createElement('a');
+  link.setAttribute('href', str);
+  link.setAttribute('download', `lab_inventory_backup_${new Date().toISOString().slice(0, 10)}.json`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  showToast('success', 'Backup Exported', 'Full JSON database export downloaded successfully.');
+}
+
+

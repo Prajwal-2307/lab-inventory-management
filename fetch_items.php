@@ -65,7 +65,7 @@ $stmt_count->close();
 // Actual data
 $sql = "SELECT id, item_code, item_name, model_no, category, location, unit,
                total_quantity, issued_quantity, available_quantity,
-               status, item_condition, min_threshold,
+               status, item_condition, min_threshold, purchase_price, purchase_date, warranty_expiry, vendor_name,
                DATE_FORMAT(created_at, '%d %b %Y') AS created_date
         FROM inventory_items
         $where
@@ -92,6 +92,10 @@ while ($row = $result->fetch_assoc()) {
     $row['issued_quantity']    = (int)$row['issued_quantity'];
     $row['available_quantity'] = (int)$row['available_quantity'];
     $row['min_threshold']      = (int)$row['min_threshold'];
+    $row['purchase_price']     = (float)($row['purchase_price'] ?? 0);
+    $row['purchase_date']      = $row['purchase_date'] ?? null;
+    $row['warranty_expiry']    = $row['warranty_expiry'] ?? null;
+    $row['vendor_name']        = $row['vendor_name'] ?? 'General Supplier';
     $row['item_code']          = $row['item_code'] ?? ('EQ-' . str_pad($row['id'], 3, '0', STR_PAD_LEFT));
     $row['model_no']           = $row['model_no'] ?? 'N/A';
     $row['unit']               = $row['unit'] ?? 'Units';

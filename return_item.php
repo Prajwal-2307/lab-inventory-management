@@ -109,7 +109,13 @@ if (!$stmt_up_loan->execute()) {
 }
 $stmt_up_loan->close();
 
-$conn->close();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$activeUser = $_SESSION['full_name'] ?? 'Lab In-Charge';
+$activeRole = $_SESSION['user_role'] ?? 'Lab Assistant';
+log_audit($conn, $activeUser, $activeRole, 'ITEM_RETURNED', $loan['item_name'], 
+    "Returned {$returned_qty} unit(s) from {$loan['borrower_name']} - Condition: {$return_condition}");
 
 send_json(true, "'{$loan['item_name']}' returned by {$loan['borrower_name']} successfully!", [
     'issue_id'          => $issue_id,

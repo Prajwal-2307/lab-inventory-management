@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Laboratory Equipment Asset Tags &amp; QR Testing Sheet</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 12mm 12mm;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #ffffff;
+      color: #0f172a;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .page-header {
+      text-align: center;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #0f172a;
+    }
+    .page-header h1 {
+      font-size: 17pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+    .page-header p {
+      font-size: 8.5pt;
+      color: #475569;
+      margin-top: 3px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .tag-card {
+      border: 2px dashed #0f172a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: #ffffff;
+      page-break-inside: avoid;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 205px;
+    }
+    .tag-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+    .tag-dept {
+      font-size: 6.8pt;
+      font-weight: 800;
+      color: #15803d;
+      letter-spacing: 0.5px;
+    }
+    .tag-cat {
+      font-size: 6.5pt;
+      font-weight: 700;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #475569;
+      text-transform: uppercase;
+    }
+    .tag-body {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex: 1;
+    }
+    .tag-qr {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 105px;
+      flex-shrink: 0;
+    }
+    .tag-qr img {
+      width: 95px;
+      height: 95px;
+      display: block;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 3px;
+      background: #fff;
+    }
+    .qr-code-text {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 8pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 5px;
+      letter-spacing: 0.5px;
+    }
+    .tag-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+    .tag-title {
+      font-size: 10.5pt;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.25;
+    }
+    .tag-model {
+      font-size: 8pt;
+      color: #64748b;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .tag-meta {
+      margin-top: 6px;
+      font-size: 7.5pt;
+      color: #1e293b;
+      line-height: 1.45;
+      background: #f8fafc;
+      padding: 6px 8px;
+      border-radius: 5px;
+      border: 1px solid #e2e8f0;
+    }
+    .tag-meta .lbl {
+      color: #64748b;
+    }
+    .tag-footer-note {
+      font-size: 6.8pt;
+      color: #15803d;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+    .page-footer {
+      margin-top: 16px;
+      padding-top: 8px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7.5pt;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>Laboratory Equipment Asset Tags &amp; QR Testing Sheet</h1>
+    <p>Central Engineering College &bull; Department of Electronics &bull; Hardware Inventory Management System v3.1</p>
+  </div>
+
+  <div class="grid">
+    
+    <div class="tag-card">
+      <div class="tag-header">
+        <span class="tag-dept">CENTRAL ENGINEERING COLLEGE &bull; LAB INVENTORY</span>
+        <span class="tag-cat">Electronics</span>
+      </div>
+      <div class="tag-body">
+        <div class="tag-qr">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsAQMAAABDsxw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABK0lEQVRoge3ZvRGDMAwFYOUoXDICo3i0ZLSMkhEoKXI4lrBs8Rfo9V4TznxQ6SyZEN3LM7WMvNDJ5eth1tMHzDGbtVa6zCIvTjQwm/RGD+acBb43CyNTSFO+n/MFA2ss8jJpIYGB7QsJDGzHVs0oX4S8TBc9Cwxsw1KLsE6nGhMwx2wb2ZGuA+aGaSHNZeClZauRVlYKawTzzCQDg1pBoTypzYnAPDMdV7T5lMekGY3tRWBgFyzJgCu6T2/9CFPqjahtXGBO2ayFskTnXpKeJVOOOUCB+WPrxLrV1NYF5pzVCkp1ijFzrwTMN1t9f7Nn53A094KBnTLzj0DkHejwJA4GZpjZoUphgYEVRuZT//qIDeaWlVRWczrVgHliyS5H/tmenTlgYP/ZvfwA+QZhoF3UucgAAAAASUVORK5CYII=" alt="EQ-EL-001" />
+          <span class="qr-code-text">EQ-EL-001</span>
+        </div>
+        <div class="tag-info">
+          <div class="tag-title">Digital Multimeter</div>
+          <div class="tag-model">Fluke 87V Precision Industrial</div>
+          <div class="tag-meta">
+            <div><span class="lbl">Location:</span> <strong>Room 201 - Bench B2</strong></div>
+            <div><span class="lbl">Asset Code:</span> <strong style="font-family:monospace;color:#0284c7;">EQ-EL-001</strong></div>
+            <div><span class="lbl">Circulation:</span> Active &bull; Verifiable Tag</div>
+          </div>
+          <div class="tag-footer-note">
+            Scan via Portal Camera Scanner to Issue / Audit
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="tag-card">
+      <div class="tag-header">
+        <span class="tag-dept">CENTRAL ENGINEERING COLLEGE &bull; LAB INVENTORY</span>
+        <span class="tag-cat">Electronics</span>
+      </div>
+      <div class="tag-body">
+        <div class="tag-qr">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsAQMAAABDsxw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABJ0lEQVRoge3ZsRGDMAwFUOUoXDJCRmE0MlpGYQRKFxyOJWwsGwL0+r/i7JdUOlkGomcZQ8nMC508fl5qPUxghtmaa6WLbOBFT29mPm/0YMaZ471VGKlC8nE/ZgEDK2zgZcqFBAZ2LCQwsAOrDqP44OIy3ZxZYGANCyXCujzVqIAZZm2kI90HzAzLhbSmgZe2ViNHWSqsGcwyK4WybFOMSjqcCMw4c2VZz71BVxAY2DWT1jPxnHtWb0S5cYFZZcQVI2fUfjOSQiI5s6Sw+u1vwIyyKjWTgBlnY9Va9rcr6e3dl38EZptV79/03dnpuRcM7JapLwJypQ5nN3EwMMVUh0qFBQbWzL1nd2cwoyxFfS7cC0ny96simAkWSlKr8c3dmQMGds2e5QdbH5mMdGOpwwAAAABJRU5ErkJggg==" alt="EQ-EL-005" />
+          <span class="qr-code-text">EQ-EL-005</span>
+        </div>
+        <div class="tag-info">
+          <div class="tag-title">Digital Oscilloscope (DSO)</div>
+          <div class="tag-model">Rigol DS1054Z 50MHz 4-CH</div>
+          <div class="tag-meta">
+            <div><span class="lbl">Location:</span> <strong>Room 202 - Rack A3</strong></div>
+            <div><span class="lbl">Asset Code:</span> <strong style="font-family:monospace;color:#0284c7;">EQ-EL-005</strong></div>
+            <div><span class="lbl">Circulation:</span> Active &bull; Verifiable Tag</div>
+          </div>
+          <div class="tag-footer-note">
+            Scan via Portal Camera Scanner to Issue / Audit
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="tag-card">
+      <div class="tag-header">
+        <span class="tag-dept">CENTRAL ENGINEERING COLLEGE &bull; LAB INVENTORY</span>
+        <span class="tag-cat">Glassware</span>
+      </div>
+      <div class="tag-body">
+        <div class="tag-qr">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsAQMAAABDsxw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABLklEQVRoge3avRGDMAwFYHEULjNCRmE0MhqjMAIlRQ7FluVfkkCv95oQ86XTIdmE6F5mLtnCwiiXr6Fa5xXMMDtSrYyeTWFxp2dge7rxADPOXLh3CKOqkHZ/3+cNBlbYFJYpFRIY2LmQwMBOrGlG/sL5ZbroWWBgHeMSYWOaaqqAGWZ95Il0HTAzLBXSoQMvxUeNtDItrA3MMmu7DrNqiTYnAjPNQnzziZvmJX8fWM/jwMBusUGmGI47pSX0LFfqjeKvVzC7bI4rp0Ii6Vl+ymEw26xN2RllFg9hwMwyLSSJHuS65tDl++kKmB3WnL/Jh87Brp57wcAuWfVGYOI0xRylZ21gYB3LT6gcMDDq/7uSexiYdaapXhe2hfTzrSKYCcYldSFVO6MQMLD/7F4+kJGMTMNJHYEAAAAASUVORK5CYII=" alt="GW-CH-002" />
+          <span class="qr-code-text">GW-CH-002</span>
+        </div>
+        <div class="tag-info">
+          <div class="tag-title">Beaker Set (500 mL)</div>
+          <div class="tag-model">Borosil Class A Heat Resistant</div>
+          <div class="tag-meta">
+            <div><span class="lbl">Location:</span> <strong>Cabinet C - Shelf 1</strong></div>
+            <div><span class="lbl">Asset Code:</span> <strong style="font-family:monospace;color:#0284c7;">GW-CH-002</strong></div>
+            <div><span class="lbl">Circulation:</span> Active &bull; Verifiable Tag</div>
+          </div>
+          <div class="tag-footer-note">
+            Scan via Portal Camera Scanner to Issue / Audit
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="tag-card">
+      <div class="tag-header">
+        <span class="tag-dept">CENTRAL ENGINEERING COLLEGE &bull; LAB INVENTORY</span>
+        <span class="tag-cat">Electronics</span>
+      </div>
+      <div class="tag-body">
+        <div class="tag-qr">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsAQMAAABDsxw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABNklEQVRoge3ZvRGDMAwFYHEUlIyQURiNjMYoGYGSIodjCRmJnwC93qty5kuns2Sb6Fn6ZBl5oZaf78qtpw9YYDaXWqkz63hxohezqXxowYKzhr/NwsgV0pS/53zBwIx1vEylkMDAjoUEBnZgm2aUfzR5mW56FhjYjiWLsLpMNS5ggdk+siPdBywMK4U068BLy1YjrUwLawSLzKhKuuPw+DJwITX6z9KcCCwy07lXm89AvhmNbqsBA7tm67UcNyude9d6I7KNCywmsyNQLYVUjtgkPUumnHZzUgKLxjaxk9FaT2DBWZ8s7nbFLl3+3K6AhWGb+zdaxhVJs5t7wcCumWw95c1IWtfJSRwMzDG3Q+m1HRgY7d+dz47YYCGZxj0XroUk+fuqCBaCJYsvJHd25oCBXbNn+QE89Ht3i+0AGAAAAABJRU5ErkJggg==" alt="EQ-EL-003" />
+          <span class="qr-code-text">EQ-EL-003</span>
+        </div>
+        <div class="tag-info">
+          <div class="tag-title">Soldering Station</div>
+          <div class="tag-model">Weller WLC100 40W Variable Power</div>
+          <div class="tag-meta">
+            <div><span class="lbl">Location:</span> <strong>Room 201 - Workstation 4</strong></div>
+            <div><span class="lbl">Asset Code:</span> <strong style="font-family:monospace;color:#0284c7;">EQ-EL-003</strong></div>
+            <div><span class="lbl">Circulation:</span> Active &bull; Verifiable Tag</div>
+          </div>
+          <div class="tag-footer-note">
+            Scan via Portal Camera Scanner to Issue / Audit
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="tag-card">
+      <div class="tag-header">
+        <span class="tag-dept">CENTRAL ENGINEERING COLLEGE &bull; LAB INVENTORY</span>
+        <span class="tag-cat">Mechanical</span>
+      </div>
+      <div class="tag-body">
+        <div class="tag-qr">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsAQMAAABDsxw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABMklEQVRoge3asRGDMAwFUHEUlIzAKIwWRssoGYGSIodjyxKSySXQ66sC+6XTWZID0b14JIu1LPT8uHRuPb3AArNdc6XPbC6LG02FbboxggVnQ9nbmZFLpC3v53iDgRmbyzJpIoGBfScSGNgXa4pRfhjyMl3ULDCwE0sWzHrtalyABWbn4BPpOsDCME2kXRpeqkcNlzJJrBUsMqMuyYlTMyi5kOI01uIEFpNJ37vUoflJvhgdszQY2BWT4Pa3DExyMEm+cYxgYNb+8ttUEmuwSxkCC88kbDKiejfj8gksJjsyKB2zc9JLl7EWpx8jNlgQ1ty/cd8rF2+DTzQwsEvW/Gfk2+HVfg0GpqwpVrN2NWBgxshmZ3kHi80k5MsEF+01HVhQdlrWLxO0XdGjBgzsL7sXH1OtCf11HBjAAAAAAElFTkSuQmCC" alt="TL-ME-007" />
+          <span class="qr-code-text">TL-ME-007</span>
+        </div>
+        <div class="tag-info">
+          <div class="tag-title">Vernier Caliper Digital</div>
+          <div class="tag-model">Mitutoyo 150mm High-Accuracy</div>
+          <div class="tag-meta">
+            <div><span class="lbl">Location:</span> <strong>Tool Chest - Drawer 1</strong></div>
+            <div><span class="lbl">Asset Code:</span> <strong style="font-family:monospace;color:#0284c7;">TL-ME-007</strong></div>
+            <div><span class="lbl">Circulation:</span> Active &bull; Verifiable Tag</div>
+          </div>
+          <div class="tag-footer-note">
+            Scan via Portal Camera Scanner to Issue / Audit
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="tag-card">
+      <div class="tag-header">
+        <span class="tag-dept">CENTRAL ENGINEERING COLLEGE &bull; LAB INVENTORY</span>
+        <span class="tag-cat">Chemicals</span>
+      </div>
+      <div class="tag-body">
+        <div class="tag-qr">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQAQMAAAC6caSPAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABU0lEQVR4nO3bTW6DMBCG4Ymy6JIj9CgcjR4tR+EILLOomMr4d4CqYVFlLL3fIkowj3ejwTYRuZ5JbZ7x8j3+WkXG3Q0rBAL5bzI3NToGksa+ZIjk2dwwQCAQp6Qt9JPa388CgUA6IOH7dy50CATSJxH5hEAg3ZGaNL5dmnQpl0ogEIhPYpPIvVlW20AgEH/kNKmJXwkEAnkjmUxVp0Kf48giN9WHfKimWWJfh0AgbslSaruQGggE4pqEbI/eW8ZmXJqn8XRjmGWFQCDuSPjUSGrHLkfPOZIzQCAQp6Suocc8XvfHJM9SAoFAvJGTaD7EsqSdBQKBuCKT7dbxxErzGjr3dXOIBYFA/JG5KXv7wkjKse9DIBB/ZPdW598nVhAIpAty2B9rXiuBQCBdEP3lxAoCgfglNbaJ14Ta11f+MAWBQN5DbA61bze693NBIBAP5Hp+AFX9unhopF2pAAAAAElFTkSuQmCC" alt="CH-RG-004" />
+          <span class="qr-code-text">CH-RG-004</span>
+        </div>
+        <div class="tag-info">
+          <div class="tag-title">Copper Sulphate Reagent</div>
+          <div class="tag-model">Analytical Reagent Grade 99%</div>
+          <div class="tag-meta">
+            <div><span class="lbl">Location:</span> <strong>Chemical Storage - Cabinet K</strong></div>
+            <div><span class="lbl">Asset Code:</span> <strong style="font-family:monospace;color:#0284c7;">CH-RG-004</strong></div>
+            <div><span class="lbl">Circulation:</span> Active &bull; Verifiable Tag</div>
+          </div>
+          <div class="tag-footer-note">
+            Scan via Portal Camera Scanner to Issue / Audit
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  <div class="page-footer">
+    <span>Generated by Lab Inventory System v3.1 &bull; Ready for physical equipment labeling &amp; cutting</span>
+    <span>Scan in Portal: http://localhost/lab-inventory/</span>
+  </div>
+</body>
+</html>

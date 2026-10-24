@@ -63,7 +63,18 @@ $stmt_up->bind_param('iisi', $new_total, $new_available, $new_status, $item_id);
 
 if ($stmt_up->execute()) {
     $stmt_up->close();
-    $conn->close();
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    $activeUser = $_SESSION['full_name'] ?? 'Lab In-Charge';
+    $activeRole = $_SESSION['user_role'] ?? 'Lab Assistant';
+    $restockDesc = "Restocked {$add_qty} unit(s). Total now: {$new_total}";
+    if (!empty($notes)) {
+        $restockDesc .= " (Note: {$notes})";
+    }
+    log_audit($conn, $activeUser, $activeRole, 'ITEM_RESTOCK', $item['item_name'], $restockDesc);
+
     send_json(true, "Successfully added {$add_qty} units to '{$item['item_name']}'!", [
         'item_id'       => $item_id,
         'item_name'     => $item['item_name'],
@@ -74,7 +85,6 @@ if ($stmt_up->execute()) {
 } else {
     $err = $stmt_up->error;
     $stmt_up->close();
-    $conn->close();
     send_json(false, 'Failed to update stock: ' . $err);
 }
 ?>

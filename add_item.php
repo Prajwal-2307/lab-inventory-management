@@ -26,6 +26,10 @@ if (empty($input)) {
     $input = $_POST;
 }
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // ── Extract & Validate Fields ─────────────────────────────────────────────────
 $item_name      = sanitize($input['item_name']      ?? '');
 $item_code      = sanitize($input['item_code']      ?? '');
@@ -36,6 +40,10 @@ $unit           = sanitize($input['unit']           ?? 'Units');
 $total_qty      = isset($input['total_quantity'])   ? (int)$input['total_quantity'] : -1;
 $item_condition = sanitize($input['item_condition'] ?? 'Good');
 $min_threshold  = isset($input['min_threshold'])    ? max(1, (int)$input['min_threshold']) : 3;
+$purchase_price = isset($input['purchase_price'])   ? (float)$input['purchase_price'] : 0.00;
+$purchase_date  = !empty($input['purchase_date'])   ? sanitize($input['purchase_date']) : null;
+$warranty_expiry= !empty($input['warranty_expiry']) ? sanitize($input['warranty_expiry']) : null;
+$vendor_name    = sanitize($input['vendor_name']    ?? '');
 
 $errors = [];
 
@@ -112,15 +120,15 @@ if ($available_qty <= 0) {
 $sql = "INSERT INTO inventory_items
           (item_code, item_name, model_no, category, location, unit,
            total_quantity, issued_quantity, available_quantity,
-           status, item_condition, min_threshold)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+           status, item_condition, min_threshold, purchase_price, purchase_date, warranty_expiry, vendor_name)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 if (!$stmt) {
     send_json(false, 'Database preparation error: ' . $conn->error);
 }
 
-$stmt->bind_param('ssssssiiissi',
+$stmt->bind_param('ssssssiiissidsss',
     $item_code,
     $item_name,
     $model_no,
@@ -132,13 +140,20 @@ $stmt->bind_param('ssssssiiissi',
     $available_qty,
     $status,
     $item_condition,
-    $min_threshold
+    $min_threshold,
+    $purchase_price,
+    $purchase_date,
+    $warranty_expiry,
+    $vendor_name
 );
 
 if ($stmt->execute()) {
     $new_id = $conn->insert_id;
     $stmt->close();
-    $conn->close();
+
+    $activeUser = $_SESSION['full_name'] ?? 'Lab In-Charge';
+    $activeRole = $_SESSION['user_role'] ?? 'Administrator';
+    log_audit($conn, $activeUser, $activeRole, 'ITEM_CREATED', $item_name, "Added new equipment asset [$item_code] with $total_qty units at $location");
 
     send_json(true, "Item '{$item_name}' added successfully!", [
         'item_id'       => $new_id,
@@ -155,7 +170,6 @@ if ($stmt->execute()) {
 } else {
     $err = $stmt->error;
     $stmt->close();
-    $conn->close();
     send_json(false, 'Failed to add item: ' . $err);
 }
 ?>
